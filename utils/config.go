@@ -11,6 +11,8 @@ import (
 type Config struct {
 	Pid      int `json:"pid"`      // Set PID of targeted player
 	Interval int `json:"interval"` // Set seconds for interval getting api response (Default: 10, Min: 5)
+
+	ServerIp string `json:"server_ip"`
 }
 
 const configFilename = "config.json"
@@ -22,11 +24,10 @@ func ReadConfig() {
 	if err != nil {
 		panic(err)
 	}
-	exDir := filepath.Dir(ex)
-	exPath := filepath.Join(exDir, configFilename)
+	exPath := filepath.Join(filepath.Dir(ex), configFilename)
 	file, err := os.Open(exPath)
 	if err != nil {
-		GenConfig(exPath)
+		CreateConfig(exPath)
 		log.Fatalf("%s not found. It's automatically generated, please edit it, and restart the program.", configFilename)
 	}
 	bytes, err := io.ReadAll(file)
@@ -40,10 +41,11 @@ func ReadConfig() {
 	}
 }
 
-func GenConfig(path string) {
+func CreateConfig(path string) {
 	config := Config{
 		Pid:      600000000,
 		Interval: 10,
+		ServerIp: "127.0.0.1:24050", // Inspired of gosumemory
 	}
 	bytes, err := json.MarshalIndent(config, "", "    ")
 	if err != nil {
