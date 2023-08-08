@@ -18,7 +18,7 @@ This tool is programmed to aimed to overlay your joined room on the live streami
 1. If you haven't installed [Go](https://go.dev/) yet, download and install it first
     * Requires v1.20 or newer to build
 2. Clone the repository
-3. Execute `go mod download` in terminal
+3. Execute `go get -u` in terminal
 4. Execute `go build` in terminal
 
 ## Credits
