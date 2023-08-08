@@ -1,6 +1,7 @@
 package utils
 
 type RoomData struct {
+	Status  string       `json:"status"`
 	Id      string       `json:"id"`
 	Setting RoomSetting  `json:"setting"`
 	Members []RoomMember `json:"members"`

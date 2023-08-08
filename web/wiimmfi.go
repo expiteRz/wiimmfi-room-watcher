@@ -23,7 +23,7 @@ func StartParseRoom() {
 	}
 
 	for {
-		data = utils.RoomData{}
+		data = utils.RoomData{Status: "offline"}
 		res, err := http.Get(fmt.Sprintf("https://wiimmfi.de/stats/mkwx/room/p%d?m=json", utils.LoadedConfig.Pid))
 		if err != nil {
 			log.Fatalf("Failed to get connection with wiimmfi. Please report it to the program owner: %v\n", err)
@@ -96,6 +96,7 @@ func StartParseRoom() {
 				member.GuestName = player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0].(string)
 			}
 			data.Members = append(data.Members, member)
+			data.Status = "success"
 
 			JSONByte, err = json.Marshal(data)
 			if err != nil {

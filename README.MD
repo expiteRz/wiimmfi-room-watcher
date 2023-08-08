@@ -9,6 +9,8 @@ This tool is programmed to aimed to overlay your joined room on the live streami
     * Visit the link in your browser (http://localhost:24050), and choose the layout.
     * Add a browser source in OBS
 
+#### More information can be seen in readme of the based project [gosumemory](https://github.com/l3lackShark/gosumemory)
+
 ## Build
 
 1. If you haven't installed [Go](https://go.dev/) yet, download and install it first
