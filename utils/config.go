@@ -2,7 +2,9 @@ package utils
 
 import (
 	"encoding/json"
-	"io"
+	"errors"
+	cnf "github.com/l3lackShark/config"
+	"github.com/spf13/cast"
 	"log"
 	"os"
 	"path/filepath"
@@ -15,7 +17,7 @@ type Config struct {
 	ServerIp string `json:"server_ip"`
 }
 
-const configFilename = "config.json"
+const configFilename = "config.ini"
 
 var LoadedConfig Config
 
@@ -25,14 +27,34 @@ func ReadConfig() {
 		panic(err)
 	}
 	exPath := filepath.Join(filepath.Dir(ex), configFilename)
-	file, err := os.Open(exPath)
-	if err != nil {
-		CreateConfig(exPath)
+
+	var (
+		config cnf.Config
+		parsed map[string]string
+	)
+	config, err = cnf.SetFile(exPath)
+	if err != nil && errors.Is(err, cnf.ErrDoesNotExist) {
+		d := []byte(`[General] ; interval = seconds, pid = your pid
+interval = 5
+pid = 600000000
+
+[Web]
+serverip = 127.0.0.1:24050
+`)
+		if err = os.WriteFile(exPath, d, 0644); err != nil {
+			panic(err)
+		}
 		log.Fatalf("%s not found. It's automatically generated, please edit it, and restart the program.", configFilename)
 	}
-	bytes, err := io.ReadAll(file)
-	if err = json.Unmarshal(bytes, &LoadedConfig); err != nil {
+	parsed, err = config.Parse()
+	if err != nil {
 		panic(err)
+	}
+
+	LoadedConfig = Config{
+		Pid:      cast.ToInt(parsed["pid"]),
+		Interval: cast.ToInt(parsed["interval"]),
+		ServerIp: parsed["serverip"],
 	}
 
 	if LoadedConfig.Interval < 5 {

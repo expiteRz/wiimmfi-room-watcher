@@ -3,4 +3,5 @@
 **/*.exe
 **/*.exe~
 config.json
+config.ini
 /static
