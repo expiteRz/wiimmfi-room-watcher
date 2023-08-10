@@ -4,9 +4,9 @@ This tool is programmed to aimed to overlay your joined room on the live streami
 
 ## Usage
 
-1. Currently the tool is not released yet. So you need to build the tool yourself. Follow the instruction below.
-    * Download [static files](https://github.com/expiteRz/wiimmfi-room-watcher.static/archive/refs/heads/master.zip) and unzip files inside into the root directory of the program.
-    > It contains all of the available overlays. Those are getting streamed via HTTP-File server.
+1. Currently the tool is not officially released yet. But you can download the executable file from Actions.
+    * Unzip it anywhere
+    > In the root folder of the program, you can find the **static** directory. It contains all of the available overlays. Those are getting streamed via HTTP-File server.
 2. Run wiimmfi-room-watcher
     * Visit the link in your browser (http://localhost:24050), and choose the layout.
     * Add a browser source in OBS
