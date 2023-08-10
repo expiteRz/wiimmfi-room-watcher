@@ -45,6 +45,10 @@ func StartServer() {
 	http.Handle("/", fs)
 
 	http.HandleFunc("/json", handle)
+
+	// There is no way to print the notification that the user can access after serving, so print it here instead
+	fmt.Printf("You can now access to http://%s or add it as a browser source in OBS!\n", utils.LoadedConfig.ServerIp)
+
 	err = http.ListenAndServe(utils.LoadedConfig.ServerIp, nil)
 	if err != nil {
 		log.Println(err)

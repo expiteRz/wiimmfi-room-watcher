@@ -30,6 +30,10 @@ jobs:
         repository: expiteRz/wiimmfi-room-watcher.static
         path: static
 
+    - name: Remove unneeded /static/.git
+      run: rm -r static/.git
+      shell: cmd
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v3
       with:

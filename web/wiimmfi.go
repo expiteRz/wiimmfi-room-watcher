@@ -13,8 +13,9 @@ import (
 
 func StartParseRoom() {
 	var (
-		err  error
-		data utils.RoomData
+		loggingAvoider bool
+		err            error
+		data           utils.RoomData
 	)
 	// Initialize JSONByte
 	JSONByte, err = json.Marshal(data)
@@ -42,16 +43,20 @@ func StartParseRoom() {
 		}
 
 		if len(test.([]interface{})) < 4 {
-			fmt.Println("Room not found. Seems the player is offline?")
+			if !loggingAvoider {
+				fmt.Println("Room not found. Seems the player is offline?")
+			}
 			JSONByte, err = json.Marshal(data)
 			if err != nil {
 				log.Println(err)
 			}
+			loggingAvoider = true
 			time.Sleep(time.Duration(utils.LoadedConfig.Interval) * time.Second)
 			continue
 		}
 
-		/// === Output room details === ///
+		/// === Start to output room details === ///
+		loggingAvoider = false
 		/// Room name
 		fmt.Printf("=== Room: %s ===\n", test.([]interface{})[2].(map[string]interface{})["room_name"])
 		data.Id = test.([]interface{})[2].(map[string]interface{})["room_name"].(string)

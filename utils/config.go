@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type Config struct {
@@ -44,7 +45,10 @@ serverip = 127.0.0.1:24050
 		if err = os.WriteFile(exPath, d, 0644); err != nil {
 			panic(err)
 		}
-		log.Fatalf("%s not found. It's automatically generated, please edit it, and restart the program.", configFilename)
+		log.Printf("%s not found. It's automatically generated, please edit it, and restart the program.", configFilename)
+		time.Sleep(5 * time.Second)
+		os.Exit(1)
+		return
 	}
 	parsed, err = config.Parse()
 	if err != nil {
