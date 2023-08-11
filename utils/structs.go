@@ -11,9 +11,11 @@ type RoomSetting struct {
 	GameMode int    `json:"game_mode"`
 	Engine   int    `json:"engine"`
 	Course   string `json:"course"`
+	CourseId int    `json:"course_id"`
 }
 
 type RoomMember struct {
+	Pid          int    `json:"pid"`
 	FriendCode   string `json:"friend_code"`
 	Name         string `json:"name"`
 	GuestName    string `json:"guest_name,omitempty"`

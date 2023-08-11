@@ -4,6 +4,7 @@ import (
 	"app.rz-public.xyz/wiimmfi-room-watcher/utils"
 	"encoding/json"
 	"fmt"
+	"github.com/spf13/cast"
 	"io"
 	"log"
 	"net/http"
@@ -17,6 +18,12 @@ func StartParseRoom() {
 		err            error
 		data           utils.RoomData
 	)
+	checkSelf := func(i, j int) string {
+		if i == j {
+			return ">"
+		}
+		return " "
+	}
 	// Initialize JSONByte
 	JSONByte, err = json.Marshal(data)
 	if err != nil {
@@ -80,24 +87,27 @@ func StartParseRoom() {
 		/// Current track/arena
 		fmt.Printf("Track: %s\n", test.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[1])
 		data.Setting.Course = test.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[1].(string)
+		data.Setting.CourseId = cast.ToInt(test.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[0])
 		/// Players
 		players := test.([]interface{})[2].(map[string]interface{})["members"].([]interface{})
 		for _, player := range players {
 			fmt.Printf(
-				"%-15s   %-20s   %4sVR\n",
+				"%s %-15s   %-20s   %4sVR\n",
+				checkSelf(utils.LoadedConfig.Pid, cast.ToInt(player.(map[string]interface{})["pid"])),
 				player.(map[string]interface{})["fc"],
 				player.(map[string]interface{})["name"].([]interface{})[0].([]interface{})[0],
 				strconv.FormatFloat(player.(map[string]interface{})["ev"].(float64), 'f', 0, 64),
 			)
 			member := utils.RoomMember{
+				Pid:          cast.ToInt(player.(map[string]interface{})["pid"]),
 				FriendCode:   player.(map[string]interface{})["fc"].(string),
 				Name:         player.(map[string]interface{})["name"].([]interface{})[0].([]interface{})[0].(string),
-				RaceRating:   int(player.(map[string]interface{})["ev"].(float64)),
-				BattleRating: int(player.(map[string]interface{})["eb"].(float64)),
+				RaceRating:   cast.ToInt(player.(map[string]interface{})["ev"]),
+				BattleRating: cast.ToInt(player.(map[string]interface{})["eb"]),
 			}
 			// If guest exists then print guest name
 			if player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0] != nil {
-				fmt.Printf("%-15s   %-20s\n", "", player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0])
+				fmt.Printf("%s %-15s   %-20s\n", checkSelf(utils.LoadedConfig.Pid, cast.ToInt(player.(map[string]interface{})["pid"])), "", player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0])
 				member.GuestName = player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0].(string)
 			}
 			data.Members = append(data.Members, member)
