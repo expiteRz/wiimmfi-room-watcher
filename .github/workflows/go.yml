@@ -12,34 +12,80 @@ on:
 jobs:
 
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.20'
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
 
-    - name: Build
-      run: go build -v -o wiimmfi-room-watcher.exe
+      - name: Install dependencies
+        run: sudo apt update && sudo apt install -y build-essential gcc-multilib gcc-mingw-w64-x86-64 gcc-mingw-w64-i686
 
-    - name: Checkout static files
-      uses: actions/checkout@v3
-      with:
-        repository: expiteRz/wiimmfi-room-watcher.static
-        path: static
+      - name: Checkout static files
+        uses: actions/checkout@v3
+        with:
+          repository: expiteRz/wiimmfi-room-watcher.static
+          path: static
 
-    - name: Remove unneeded /static/.git
-      run: rm -r static/.git
-      shell: cmd
+      - name: Build (Windows amd64)
+        run: CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -o wiimmfi-room-watcher.exe
 
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: wiimmfi-room-watcher
-        path: |
-          wiimmfi-room-watcher.exe
-          static/
+      - name: Remove unneeded /static/.git
+        run: rm -r static/.git -f
+        shell: bash
 
-        
+      - name: Package Windows amd64
+        uses: actions/upload-artifact@v3
+        with:
+          name: wiimmfi-room-watcher-win-amd64
+          path: |
+            wiimmfi-room-watcher.exe
+            static/
+
+      - name: Rename former build win amd64
+        run: mv wiimmfi-room-watcher.exe amd64.exe
+
+      - name: Build (Windows 386)
+        run: CC=i686-w64-mingw32-gcc CGO_ENABLED=1 GOOS=windows GOARCH=386 go build -o wiimmfi-room-watcher.exe
+
+      - name: Package Windows i386
+        uses: actions/upload-artifact@v3
+        with:
+          name: wiimmfi-room-watcher-win-i386
+          path: |
+            wiimmfi-room-watcher.exe
+            static/
+
+      - name: Rename former build win i386
+        run: mv wiimmfi-room-watcher.exe i386.exe
+
+      - name: Build (Linux amd64)
+        run: CC=gcc go build -o wiimmfi-room-watcher
+
+      - name: Package Linux amd64
+        uses: actions/upload-artifact@v3
+        with:
+          name: wiimmfi-room-watcher-linux-amd64
+          path: |
+            wiimmfi-room-watcher
+            static/
+
+      - name: Rename former build lin amd64
+        run: mv wiimmfi-room-watcher lamd64
+
+      - name: Build (Linux i386)
+        run: CC=gcc CGO_ENABLED=1 GOARCH=386 go build -o wiimmfi-room-watcher
+
+      - name: Package Linux i386
+        uses: actions/upload-artifact@v3
+        with:
+          name: wiimmfi-room-watcher-linux-i386
+          path: |
+            wiimmfi-room-watcher
+            static/
+
+      - name: Rename former build lin i386
+        run: mv wiimmfi-room-watcher li386
