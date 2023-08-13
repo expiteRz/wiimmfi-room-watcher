@@ -42,14 +42,14 @@ func StartParseRoom() {
 		//fmt.Printf("%v\n\n", string(body))
 		res.Body.Close()
 
-		var test interface{}
-		if err := json.Unmarshal(body, &test); err != nil {
+		var roomData interface{}
+		if err := json.Unmarshal(body, &roomData); err != nil {
 			log.Printf("Error occurred: %v", err)
 			time.Sleep(time.Duration(utils.LoadedConfig.Interval) * time.Second)
 			continue
 		}
 
-		if len(test.([]interface{})) < 4 {
+		if len(roomData.([]interface{})) < 4 {
 			if !loggingAvoider {
 				fmt.Println("Room not found. Seems the player is offline?")
 			}
@@ -65,31 +65,28 @@ func StartParseRoom() {
 		/// === Start to output room details === ///
 		loggingAvoider = false
 		/// Room name
-		fmt.Printf("=== Room: %s ===\n", test.([]interface{})[2].(map[string]interface{})["room_name"])
-		data.Id = test.([]interface{})[2].(map[string]interface{})["room_name"].(string)
+		fmt.Printf("=== Room: %s ===\n", roomData.([]interface{})[2].(map[string]interface{})["room_name"])
+		data.Id = roomData.([]interface{})[2].(map[string]interface{})["room_name"].(string)
 
 		/// Mode-related
-		gameMode := utils.CheckGameMode(int(test.([]interface{})[2].(map[string]interface{})["ol_status"].([]interface{})[0].(float64)))
+		gameMode := utils.CheckGameMode(cast.ToInt(roomData.([]interface{})[2].(map[string]interface{})["ol_status"].([]interface{})[0]))
 		data.Setting.GameMode = gameMode
 		switch gameMode {
-		case utils.ModePrivateVS:
-		case utils.ModeVS:
-			fmt.Printf("Engine: %s\n", utils.ENGINE[int(test.([]interface{})[2].(map[string]interface{})["engine"].(float64))])
-			data.Setting.Engine = int(test.([]interface{})[2].(map[string]interface{})["engine"].(float64))
-		case utils.ModePrivateBalloonBattle:
-		case utils.ModeBalloonBattle:
+		case utils.ModePrivateVS, utils.ModeVS:
+			fmt.Printf("Engine: %s\n", utils.ENGINE[int(roomData.([]interface{})[2].(map[string]interface{})["engine"].(float64))])
+			data.Setting.Engine = int(roomData.([]interface{})[2].(map[string]interface{})["engine"].(float64))
+		case utils.ModePrivateBalloonBattle, utils.ModeBalloonBattle:
 			fmt.Println("Balloon Battle")
-		case utils.ModePrivateCoinBattle:
-		case utils.ModeCoinBattle:
+		case utils.ModePrivateCoinBattle, utils.ModeCoinBattle:
 			fmt.Println("Coin Battle")
 		}
 
 		/// Current track/arena
-		fmt.Printf("Track: %s\n", test.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[1])
-		data.Setting.Course = test.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[1].(string)
-		data.Setting.CourseId = cast.ToInt(test.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[0])
+		fmt.Printf("Track: %s\n", roomData.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[1])
+		data.Setting.Course = roomData.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[1].(string)
+		data.Setting.CourseId = cast.ToInt(roomData.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[0])
 		/// Players
-		players := test.([]interface{})[2].(map[string]interface{})["members"].([]interface{})
+		players := roomData.([]interface{})[2].(map[string]interface{})["members"].([]interface{})
 		for _, player := range players {
 			fmt.Printf(
 				"%s %-15s   %-20s   %4sVR\n",
@@ -104,14 +101,20 @@ func StartParseRoom() {
 				Name:         player.(map[string]interface{})["name"].([]interface{})[0].([]interface{})[0].(string),
 				RaceRating:   cast.ToInt(player.(map[string]interface{})["ev"]),
 				BattleRating: cast.ToInt(player.(map[string]interface{})["eb"]),
+				Status:       player.(map[string]interface{})["ol_role"].(string),
+				FinishTimes:  []int{cast.ToInt(player.(map[string]interface{})["time"].([]interface{})[0])},
 			}
 			// If guest exists then print guest name
 			if player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0] != nil {
-				fmt.Printf("%s %-15s   %-20s\n", checkSelf(utils.LoadedConfig.Pid, cast.ToInt(player.(map[string]interface{})["pid"])), "", player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0])
+				fmt.Printf(
+					"%s %-15s   %-20s\n", checkSelf(utils.LoadedConfig.Pid, cast.ToInt(player.(map[string]interface{})["pid"])), "", player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0],
+				)
 				member.GuestName = player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0].(string)
+				member.FinishTimes = append(member.FinishTimes, cast.ToInt(player.(map[string]interface{})["time"].([]interface{})[1]))
 			}
 			data.Members = append(data.Members, member)
 			data.Status = "success"
+			data.MemberLen = cast.ToInt(roomData.([]interface{})[2].(map[string]interface{})["n_players"])
 
 			JSONByte, err = json.Marshal(data)
 			if err != nil {
