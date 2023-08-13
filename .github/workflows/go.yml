@@ -21,8 +21,8 @@ jobs:
         with:
           go-version: '1.20'
 
-      - name: Install dependencies
-        run: sudo apt update && sudo apt install -y build-essential gcc-multilib gcc-mingw-w64-x86-64 gcc-mingw-w64-i686
+#      - name: Install dependencies
+#        run: sudo apt update && sudo apt install -y build-essential gcc-multilib gcc-mingw-w64-x86-64 gcc-mingw-w64-i686
 
       - name: Checkout static files
         uses: actions/checkout@v3
@@ -31,7 +31,7 @@ jobs:
           path: static
 
       - name: Build (Windows amd64)
-        run: CC=x86_64-w64-mingw32-gcc CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -o wiimmfi-room-watcher.exe
+        run: GOOS=windows GOARCH=amd64 go build -v -o wiimmfi-room-watcher.exe
 
       - name: Remove unneeded /static/.git
         run: rm -r static/.git -f
@@ -49,7 +49,7 @@ jobs:
         run: mv wiimmfi-room-watcher.exe amd64.exe
 
       - name: Build (Windows 386)
-        run: CC=i686-w64-mingw32-gcc CGO_ENABLED=1 GOOS=windows GOARCH=386 go build -o wiimmfi-room-watcher.exe
+        run: GOOS=windows GOARCH=386 go build -o wiimmfi-room-watcher.exe
 
       - name: Package Windows i386
         uses: actions/upload-artifact@v3
@@ -63,7 +63,7 @@ jobs:
         run: mv wiimmfi-room-watcher.exe i386.exe
 
       - name: Build (Linux amd64)
-        run: CC=gcc go build -o wiimmfi-room-watcher
+        run: go build -o wiimmfi-room-watcher
 
       - name: Package Linux amd64
         uses: actions/upload-artifact@v3
@@ -77,7 +77,7 @@ jobs:
         run: mv wiimmfi-room-watcher lamd64
 
       - name: Build (Linux i386)
-        run: CC=gcc CGO_ENABLED=1 GOARCH=386 go build -o wiimmfi-room-watcher
+        run: GOARCH=386 go build -o wiimmfi-room-watcher
 
       - name: Package Linux i386
         uses: actions/upload-artifact@v3
