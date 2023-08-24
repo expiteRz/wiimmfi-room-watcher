@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"encoding/json"
 	"errors"
+	"flag"
 	cnf "github.com/l3lackShark/config"
 	"github.com/spf13/cast"
 	"log"
@@ -18,16 +18,17 @@ type Config struct {
 	ServerIp string `json:"server_ip"`
 }
 
-const configFilename = "config.ini"
+var configFilename = flag.String("config", "config.ini", "Set specific config file")
 
 var LoadedConfig Config
 
 func ReadConfig() {
+	flag.Parse()
 	ex, err := os.Executable()
 	if err != nil {
 		panic(err)
 	}
-	exPath := filepath.Join(filepath.Dir(ex), configFilename)
+	exPath := filepath.Join(filepath.Dir(ex), *configFilename)
 
 	var (
 		config cnf.Config
@@ -45,7 +46,7 @@ serverip = 127.0.0.1:24050
 		if err = os.WriteFile(exPath, d, 0644); err != nil {
 			panic(err)
 		}
-		log.Printf("%s not found. It's automatically generated, please edit it, and restart the program.", configFilename)
+		log.Printf("%s not found. It's automatically generated, please edit it, and restart the program.", *configFilename)
 		time.Sleep(5 * time.Second)
 		os.Exit(1)
 		return
@@ -67,24 +68,24 @@ serverip = 127.0.0.1:24050
 	}
 }
 
-func CreateConfig(path string) {
-	config := Config{
-		Pid:      600000000,
-		Interval: 10,
-		ServerIp: "127.0.0.1:24050", // Inspired of gosumemory
-	}
-	bytes, err := json.MarshalIndent(config, "", "    ")
-	if err != nil {
-		panic(err)
-	}
-
-	file, err := os.Create(path)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-	_, err = file.Write(bytes)
-	if err != nil {
-		panic(err)
-	}
-}
+//func CreateConfig(path string) {
+//	config := Config{
+//		Pid:      600000000,
+//		Interval: 10,
+//		ServerIp: "127.0.0.1:24050", // Inspired of gosumemory
+//	}
+//	bytes, err := json.MarshalIndent(config, "", "    ")
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	file, err := os.Create(path)
+//	if err != nil {
+//		panic(err)
+//	}
+//	defer file.Close()
+//	_, err = file.Write(bytes)
+//	if err != nil {
+//		panic(err)
+//	}
+//}
