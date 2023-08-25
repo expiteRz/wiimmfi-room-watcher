@@ -23,6 +23,7 @@ var upgrader = websocket.Upgrader{
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
+		log.SetPrefix("[Web] ")
 		log.Println(err)
 	}
 	for {
@@ -51,6 +52,7 @@ func StartServer() {
 
 	err = http.ListenAndServe(utils.LoadedConfig.ServerIp, nil)
 	if err != nil {
+		log.SetPrefix("[Web] ")
 		log.Println(err)
 		time.Sleep(5 * time.Second)
 		log.Fatalln(err)

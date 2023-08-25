@@ -27,6 +27,7 @@ func StartParseRoom() {
 	// Initialize JSONByte
 	JSONByte, err = json.Marshal(data)
 	if err != nil {
+		log.SetPrefix("[Wiimmfi] ")
 		log.Println(err)
 	}
 
@@ -34,6 +35,7 @@ func StartParseRoom() {
 		data = utils.RoomData{Status: "offline"}
 		res, err := http.Get(fmt.Sprintf("https://wiimmfi.de/stats/mkwx/room/p%d?m=json", utils.LoadedConfig.Pid))
 		if err != nil {
+			log.SetPrefix("[Wiimmfi] ")
 			log.Fatalf("Failed to get connection with wiimmfi. Please report it to the program owner: %v\n", err)
 			return
 		}
@@ -44,6 +46,7 @@ func StartParseRoom() {
 
 		var roomData interface{}
 		if err := json.Unmarshal(body, &roomData); err != nil {
+			log.SetPrefix("[Wiimmfi] ")
 			log.Printf("Error occurred: %v", err)
 			time.Sleep(time.Duration(utils.LoadedConfig.Interval) * time.Second)
 			continue
@@ -55,6 +58,7 @@ func StartParseRoom() {
 			}
 			JSONByte, err = json.Marshal(data)
 			if err != nil {
+				log.SetPrefix("[Wiimmfi] ")
 				log.Println(err)
 			}
 			loggingAvoider = true
@@ -118,6 +122,7 @@ func StartParseRoom() {
 
 			JSONByte, err = json.Marshal(data)
 			if err != nil {
+				log.SetPrefix("[Wiimmfi] ")
 				log.Println(err)
 			}
 		}

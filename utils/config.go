@@ -46,6 +46,7 @@ serverip = 127.0.0.1:24050
 		if err = os.WriteFile(exPath, d, 0644); err != nil {
 			panic(err)
 		}
+		log.SetPrefix("[Config] ")
 		log.Printf("%s not found. It's automatically generated, please edit it, and restart the program.", *configFilename)
 		time.Sleep(5 * time.Second)
 		os.Exit(1)
