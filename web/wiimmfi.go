@@ -12,11 +12,12 @@ import (
 	"time"
 )
 
+var RoomData utils.RoomData // expose room data variable to use in tui
+
 func StartParseRoom() {
 	var (
 		loggingAvoider bool
 		err            error
-		data           utils.RoomData
 	)
 	checkSelf := func(i, j int) string {
 		if i == j {
@@ -25,14 +26,14 @@ func StartParseRoom() {
 		return " "
 	}
 	// Initialize JSONByte
-	JSONByte, err = json.Marshal(data)
+	JSONByte, err = json.Marshal(RoomData)
 	if err != nil {
 		log.SetPrefix("[Wiimmfi] ")
 		log.Println(err)
 	}
 
 	for {
-		data = utils.RoomData{Status: "offline"}
+		RoomData = utils.RoomData{Status: "offline"}
 		res, err := http.Get(fmt.Sprintf("https://wiimmfi.de/stats/mkwx/room/p%d?m=json", utils.LoadedConfig.Pid))
 		if err != nil {
 			log.SetPrefix("[Wiimmfi] ")
@@ -56,7 +57,7 @@ func StartParseRoom() {
 			if !loggingAvoider {
 				fmt.Println("Room not found. Seems the player is offline?")
 			}
-			JSONByte, err = json.Marshal(data)
+			JSONByte, err = json.Marshal(RoomData)
 			if err != nil {
 				log.SetPrefix("[Wiimmfi] ")
 				log.Println(err)
@@ -70,15 +71,15 @@ func StartParseRoom() {
 		loggingAvoider = false
 		/// Room name
 		fmt.Printf("=== Room: %s ===\n", roomData.([]interface{})[2].(map[string]interface{})["room_name"])
-		data.Id = roomData.([]interface{})[2].(map[string]interface{})["room_name"].(string)
+		RoomData.Id = roomData.([]interface{})[2].(map[string]interface{})["room_name"].(string)
 
 		/// Mode-related
 		gameMode := utils.CheckGameMode(cast.ToInt(roomData.([]interface{})[2].(map[string]interface{})["ol_status"].([]interface{})[0]))
-		data.Setting.GameMode = gameMode
+		RoomData.Setting.GameMode = gameMode
 		switch gameMode {
 		case utils.ModePrivateVS, utils.ModeVS:
 			fmt.Printf("Engine: %s\n", utils.ENGINE[int(roomData.([]interface{})[2].(map[string]interface{})["engine"].(float64))])
-			data.Setting.Engine = int(roomData.([]interface{})[2].(map[string]interface{})["engine"].(float64))
+			RoomData.Setting.Engine = int(roomData.([]interface{})[2].(map[string]interface{})["engine"].(float64))
 		case utils.ModePrivateBalloonBattle, utils.ModeBalloonBattle:
 			fmt.Println("Balloon Battle")
 		case utils.ModePrivateCoinBattle, utils.ModeCoinBattle:
@@ -87,8 +88,8 @@ func StartParseRoom() {
 
 		/// Current track/arena
 		fmt.Printf("Track: %s\n", roomData.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[1])
-		data.Setting.Course = roomData.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[1].(string)
-		data.Setting.CourseId = cast.ToInt(roomData.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[0])
+		RoomData.Setting.Course = roomData.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[1].(string)
+		RoomData.Setting.CourseId = cast.ToInt(roomData.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[0])
 		/// Players
 		players := roomData.([]interface{})[2].(map[string]interface{})["members"].([]interface{})
 		for _, player := range players {
@@ -116,11 +117,11 @@ func StartParseRoom() {
 				member.GuestName = player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0].(string)
 				member.FinishTimes = append(member.FinishTimes, cast.ToInt(player.(map[string]interface{})["time"].([]interface{})[1]))
 			}
-			data.Members = append(data.Members, member)
-			data.Status = "success"
-			data.MemberLen = cast.ToInt(roomData.([]interface{})[2].(map[string]interface{})["n_players"])
+			RoomData.Members = append(RoomData.Members, member)
+			RoomData.Status = "success"
+			RoomData.MemberLen = cast.ToInt(roomData.([]interface{})[2].(map[string]interface{})["n_players"])
 
-			JSONByte, err = json.Marshal(data)
+			JSONByte, err = json.Marshal(RoomData)
 			if err != nil {
 				log.SetPrefix("[Wiimmfi] ")
 				log.Println(err)
