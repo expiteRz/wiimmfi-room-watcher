@@ -107,6 +107,15 @@ func StartParseRoom() {
 				BattleRating: cast.ToInt(player.(map[string]interface{})["eb"]),
 				Status:       player.(map[string]interface{})["ol_role"].(string),
 				FinishTimes:  []int{cast.ToInt(player.(map[string]interface{})["time"].([]interface{})[0])},
+				Course: utils.MemberCourse{
+					Name:    player.(map[string]interface{})["track"].([]interface{})[1].(string),
+					Id:      cast.ToInt(player.(map[string]interface{})["track"].([]interface{})[0]),
+					Allowed: player.(map[string]interface{})["track"].([]interface{})[4].(string),
+				},
+				Combos: []utils.Combo{{
+					utils.CharacterId(cast.ToInt(player.(map[string]interface{})["driver"].([]interface{})[0])).String(),
+					utils.VehicleId(cast.ToInt(player.(map[string]interface{})["vehicle"].([]interface{})[0])).String(),
+				}},
 			}
 			// If guest exists then print guest name
 			if player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0] != nil {
@@ -115,10 +124,14 @@ func StartParseRoom() {
 				)
 				member.GuestName = player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0].(string)
 				member.FinishTimes = append(member.FinishTimes, cast.ToInt(player.(map[string]interface{})["time"].([]interface{})[1]))
+				member.Combos = append(member.Combos, utils.Combo{
+					Character: utils.CharacterId(cast.ToInt(player.(map[string]interface{})["driver"].([]interface{})[1])).String(),
+					Vehicle:   utils.VehicleId(cast.ToInt(player.(map[string]interface{})["vehicle"].([]interface{})[1])).String(),
+				})
 			}
 			data.Members = append(data.Members, member)
-			data.Status = "success"
 			data.MemberLen = cast.ToInt(roomData.([]interface{})[2].(map[string]interface{})["n_players"])
+			data.Status = "success"
 
 			JSONByte, err = json.Marshal(data)
 			if err != nil {

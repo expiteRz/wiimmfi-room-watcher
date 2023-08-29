@@ -16,18 +16,25 @@ type RoomSetting struct {
 }
 
 type RoomMember struct {
-	Pid          int    `json:"pid"`
-	FriendCode   string `json:"friend_code"`
-	Name         string `json:"name"`
-	GuestName    string `json:"guest_name"`
-	RaceRating   int    `json:"vr"`
-	BattleRating int    `json:"br"`
-	Status       string `json:"role"`
-	FinishTimes  []int  `json:"finish_times"`
+	Pid          int          `json:"pid"`
+	FriendCode   string       `json:"friend_code"`
+	Name         string       `json:"name"`
+	GuestName    string       `json:"guest_name"`
+	RaceRating   int          `json:"vr"`
+	BattleRating int          `json:"br"`
+	Status       string       `json:"role"`
+	FinishTimes  []int        `json:"finish_times"`
+	Course       MemberCourse `json:"course"`
+	Combos       []Combo      `json:"combos"`
 }
 
 type MemberCourse struct {
 	Name    string `json:"name"`
 	Id      int    `json:"id"`
 	Allowed string `json:"allowed"`
+}
+
+type Combo struct {
+	Character string `json:"character"`
+	Vehicle   string `json:"vehicle"`
 }
