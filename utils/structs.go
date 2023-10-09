@@ -9,10 +9,11 @@ type RoomData struct {
 }
 
 type RoomSetting struct {
-	GameMode int    `json:"game_mode"`
-	Engine   int    `json:"engine"`
-	Course   string `json:"course"`
-	CourseId int    `json:"course_id"`
+	GameMode     int    `json:"game_mode"`
+	Engine       int    `json:"engine"`
+	Course       string `json:"course"`
+	CourseId     int    `json:"course_id"`
+	ThumbnailUrl string `json:"thumbnail_url"`
 }
 
 type RoomMember struct {
@@ -35,6 +36,11 @@ type MemberCourse struct {
 }
 
 type Combo struct {
-	Character string `json:"character"`
-	Vehicle   string `json:"vehicle"`
+	Character ComboChild `json:"character"`
+	Vehicle   ComboChild `json:"vehicle"`
+}
+
+type ComboChild struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }

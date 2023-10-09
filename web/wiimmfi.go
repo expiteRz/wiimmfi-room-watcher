@@ -89,6 +89,9 @@ func StartParseRoom() {
 		fmt.Printf("Track: %s\n", roomData.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[1])
 		data.Setting.Course = roomData.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[1].(string)
 		data.Setting.CourseId = cast.ToInt(roomData.([]interface{})[2].(map[string]interface{})["track"].([]interface{})[0])
+		// Start -- TODO: Branch if Nintendo track or similar
+		data.Setting.ThumbnailUrl = fmt.Sprintf("https://ct.wiimm.de/img/start/%d", data.Setting.CourseId)
+		// End -- TODO: Branch if Nintendo track or similar
 		/// Players
 		players := roomData.([]interface{})[2].(map[string]interface{})["members"].([]interface{})
 		for _, player := range players {
@@ -112,21 +115,26 @@ func StartParseRoom() {
 					Id:      cast.ToInt(player.(map[string]interface{})["track"].([]interface{})[0]),
 					Allowed: player.(map[string]interface{})["track"].([]interface{})[4].(string),
 				},
-				Combos: []utils.Combo{{
-					utils.CharacterId(cast.ToInt(player.(map[string]interface{})["driver"].([]interface{})[0])).String(),
-					utils.VehicleId(cast.ToInt(player.(map[string]interface{})["vehicle"].([]interface{})[0])).String(),
-				}},
 			}
-			// If guest exists then print guest name
-			if player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0] != nil {
+			chara := utils.CharacterId(cast.ToInt(player.(map[string]interface{})["driver"].([]interface{})[0]))
+			vehicle := utils.VehicleId(cast.ToInt(player.(map[string]interface{})["vehicle"].([]interface{})[0]))
+			member.Combos = []utils.Combo{{
+				Character: utils.ComboChild{int(chara), chara.String()},
+				Vehicle:   utils.ComboChild{int(vehicle), vehicle.String()},
+			}}
+			// If guest exists then store guest data
+			if player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0] != nil ||
+				cast.ToString(player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0]) != "" {
 				fmt.Printf(
 					"%s %-15s   %-20s\n", checkSelf(utils.LoadedConfig.Pid, cast.ToInt(player.(map[string]interface{})["pid"])), "", player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0],
 				)
 				member.GuestName = player.(map[string]interface{})["name"].([]interface{})[1].([]interface{})[0].(string)
 				member.FinishTimes = append(member.FinishTimes, cast.ToInt(player.(map[string]interface{})["time"].([]interface{})[1]))
+				chara = utils.CharacterId(cast.ToInt(player.(map[string]interface{})["driver"].([]interface{})[1]))
+				vehicle = utils.VehicleId(cast.ToInt(player.(map[string]interface{})["vehicle"].([]interface{})[1]))
 				member.Combos = append(member.Combos, utils.Combo{
-					Character: utils.CharacterId(cast.ToInt(player.(map[string]interface{})["driver"].([]interface{})[1])).String(),
-					Vehicle:   utils.VehicleId(cast.ToInt(player.(map[string]interface{})["vehicle"].([]interface{})[1])).String(),
+					Character: utils.ComboChild{int(chara), chara.String()},
+					Vehicle:   utils.ComboChild{int(vehicle), vehicle.String()},
 				})
 			}
 			data.Members = append(data.Members, member)
