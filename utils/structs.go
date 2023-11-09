@@ -24,9 +24,9 @@ type RoomMember struct {
 	RaceRating   int          `json:"vr"`
 	BattleRating int          `json:"br"`
 	Status       string       `json:"role"`
-	FinishTimes  []int        `json:"finish_times"`
+	FinishTimes  []int        `json:"finish_times"` // FinishTimes[0] = Primary players time, FinishTimes[1] = Guest players time
 	Course       MemberCourse `json:"course"`
-	Combos       []Combo      `json:"combos"`
+	Combos       []Combo      `json:"combos"` // Combo[0] = Primary players combo, Combo[1] = Guest players combo
 }
 
 type MemberCourse struct {
