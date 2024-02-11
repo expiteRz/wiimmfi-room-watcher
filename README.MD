@@ -1,6 +1,7 @@
 # wiimmfi-room-watcher
 
 This tool is programmed to aimed to overlay your joined room on the live streaming.
+> NOTE: Currently, wiimmfi-room-watcher cannot retrieve the room statistics correctly because Wiimmfi is now unstable for it. It is not a issue on the tool. Please don't ask about it to the author.
 
 ## Usage
 
