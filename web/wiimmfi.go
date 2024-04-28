@@ -54,15 +54,25 @@ func StartParseRoom() {
 
 		/// Mode-related
 		gameMode := utils.CheckGameMode(int(room.OlStatus[0].(float64)))
+		data.Setting.GameMode = gameMode
+		// Store game mode but text for non-coder
+		if _, b := utils.GAMEMODE[gameMode]; b {
+			data.Setting.GameModeText = utils.GAMEMODE[gameMode]
+		}
 		switch gameMode {
 		case utils.ModePrivateVS, utils.ModeVS:
 			fmt.Printf("Engine: %s\n", utils.ENGINE[room.Engine])
+			data.Setting.EngineText = utils.ENGINE[room.Engine]
 			data.Setting.Engine = room.Engine
 		case utils.ModePrivateBalloonBattle, utils.ModeBalloonBattle:
 			fmt.Println("Balloon Battle")
 		case utils.ModePrivateCoinBattle, utils.ModeCoinBattle:
 			fmt.Println("Coin Battle")
+		default:
+			break
 		}
+		// Store amount of races in a room
+		data.Setting.RaceCount = room.RaceCount
 
 		/// Current track/arena
 		fmt.Printf("Track: %s\n", room.Track[1].(string))
@@ -145,13 +155,14 @@ func checkSelf(i, j int) string {
 }
 
 type SourceParse struct {
-	RoomId   int                 `json:"room_id"`
-	RoomName string              `json:"room_name"`
-	OlStatus []interface{}       `json:"ol_status"`
-	Players  int                 `json:"n_players"`
-	Engine   int                 `json:"engine"`
-	Track    [5]interface{}      `json:"track"`
-	Members  []SourceMemberParse `json:"members"`
+	RoomId    int                 `json:"room_id"`
+	RoomName  string              `json:"room_name"`
+	OlStatus  []interface{}       `json:"ol_status"`
+	Players   int                 `json:"n_players"`
+	RaceCount int                 `json:"n_races"`
+	Engine    int                 `json:"engine"`
+	Track     [5]interface{}      `json:"track"`
+	Members   []SourceMemberParse `json:"members"`
 }
 
 type SourceMemberParse struct {

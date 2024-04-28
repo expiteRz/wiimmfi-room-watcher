@@ -10,9 +10,12 @@ type RoomData struct {
 
 type RoomSetting struct {
 	GameMode     int    `json:"game_mode"`
+	GameModeText string `json:"game_mode_text"`
+	RaceCount    int    `json:"race_count"`
 	Engine       int    `json:"engine"`
-	Course       string `json:"course"`
+	EngineText   string `json:"engine_text"`
 	CourseId     int    `json:"course_id"`
+	Course       string `json:"course"`
 	ThumbnailUrl string `json:"thumbnail_url"`
 }
 
@@ -30,8 +33,8 @@ type RoomMember struct {
 }
 
 type MemberCourse struct {
-	Name    string `json:"name"`
 	Id      int    `json:"id"`
+	Name    string `json:"name"`
 	Allowed string `json:"allowed"`
 }
 

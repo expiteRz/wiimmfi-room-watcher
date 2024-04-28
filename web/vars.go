@@ -41,4 +41,16 @@ var NinImagePath = map[int]string{
 	3429: "e/e2/MKWii_Peach_Gardens.png/800px-MKWii_Peach_Gardens.png",
 	3437: "c/c2/DK_Mountain.png/800px-DK_Mountain.png",
 	3456: "e/e5/N64BowserCastle-MKWii.png/800px-N64BowserCastle-MKWii.png",
+
+	3409: "e/e6/Block_Plaza.png/800px-Block_Plaza.png",
+	3413: "1/11/Delfino_Pier.png/800px-Delfino_Pier.png",
+	3415: "b/b9/MKW_Funky_Stadium_Overview.png/800px-MKW_Funky_Stadium_Overview.png",
+	3410: "d/d3/Chain_Chomp_Roulette.png/800px-Chain_Chomp_Roulette.png",
+	3420: "9/9a/Thwomp_Desert.png/800px-Thwomp_Desert.png",
+
+	3419: "2/24/Battle_Course_4_(SNES).png/800px-Battle_Course_4_(SNES).png",
+	3416: "0/01/Battle_Course_3_(GBA).png/800px-Battle_Course_3_(GBA).png",
+	3418: "3/31/N64Skyscraper-MKWii.png/800px-N64Skyscraper-MKWii.png",
+	3417: "9/90/Cookie_Land.png/800px-Cookie_Land.png",
+	3412: "f/f0/Twilight_House.png/800px-Twilight_House.png",
 }

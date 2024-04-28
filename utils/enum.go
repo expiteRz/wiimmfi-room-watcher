@@ -7,6 +7,15 @@ var (
 		"150cc",
 		"Mirror",
 	}
+	GAMEMODE = map[int]string{
+		ModeNone:                 "Unknown game mode",
+		ModeVS:                   "Public VS",
+		ModeCoinBattle:           "Public Coin Battle",
+		ModeBalloonBattle:        "Public Balloon Battle",
+		ModePrivateVS:            "Private Room VS",
+		ModePrivateCoinBattle:    "Private Room Coin Battle",
+		ModePrivateBalloonBattle: "Private Room Balloon Battle",
+	}
 )
 
 const (
