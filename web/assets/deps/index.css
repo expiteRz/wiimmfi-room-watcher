@@ -1,0 +1,153 @@
+:root {
+    --content-size: 1350px;
+    --var-color-background: hsl(207deg, 1%, 12%);
+    --var-color-text: hsl(36deg, 12%, 90%);
+    --var-color-button: hsl(36deg, 36%, 72%);
+    --var-color-button-hover: hsl(36deg, 36%, 84%);
+    --var-color-button-bg-hover: hsla(36deg, 36%, 42%, .4);
+    --var-color-button-bg-selected: hsla(36deg, 36%, 42%, .2);
+    --var-color-nav-background: hsla(36deg, 1%, 48%, .2);
+    --var-color-input-background: hsla(36deg, 1%, 18%, .3);
+    --var-color-input-background-hover: hsla(36deg, 1%, 24%, .7);
+    --var-color-setting-item-background-hover: hsl(36deg, 1%, 18%);
+}
+
+html, body {
+    background-color: var(--var-color-background);
+    color: var(--var-color-text);
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+* {
+    transition: all .2s ease-in-out !important;
+}
+
+a, button {
+    all: unset;
+    cursor: pointer;
+}
+
+body {
+    margin: 0;
+    padding-top: 9.6em;
+    box-sizing: border-box;
+}
+
+.top-bar {
+    display: flex;
+    position: fixed;
+    flex-direction: column;
+    width: 100%;
+    top: 0;
+    z-index: 2000;
+}
+
+.social-dock {
+    margin: .7em;
+}
+
+.social-dock > a {
+    color: var(--var-color-button);
+}
+
+.social-dock > a:hover {
+    color: var(--var-color-button-hover);
+}
+
+.nav {
+    display: flex;
+    justify-content: center;
+    background-color: var(--var-color-nav-background);
+    width: 100%;
+    padding: .8em 0;
+    border-radius: .4em;
+    margin: 0 auto;
+    gap: 1em;
+}
+
+.button {
+    position: relative;
+    display: flex;
+    min-width: 8em;
+    padding: .8em;
+    align-content: center;
+    justify-content: center;
+    border-radius: 4px;
+    outline: 1px solid var(--var-color-button);
+    color: var(--var-color-button);
+    /*pointer-events: none;*/
+}
+
+.button:hover {
+    background-color: var(--var-color-button-bg-hover) !important;
+    outline-color: var(--var-color-button-hover) !important;
+    color: var(--var-color-button-hover) !important;
+}
+
+.button.active {
+    background-color: var(--var-color-button-bg-selected);
+}
+
+.button.active:before {
+    position: absolute;
+    content: "";
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 2px;
+    outline: 6px solid var(--var-color-button-bg-hover);
+}
+
+main {
+    display: flex;
+    gap: .7em;
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: min(var(--content-size), 100vw - 2em);
+}
+
+.setting-item {
+    position: relative;
+    display: flex;
+    border-radius: .4em;
+    padding-left: 1em;
+    padding-right: 1em;
+
+    *:nth-child(2) {
+        margin-top: 1.4em;
+        margin-left: auto;
+        margin-right: 0;
+    }
+}
+
+.setting-item:hover {
+    background-color: var(--var-color-setting-item-background-hover) !important;
+}
+
+input {
+    all: unset;
+    font-family: "Poppins", sans-serif;
+    font-size: medium;
+    font-weight: 400;
+    cursor: text;
+
+    color: currentColor;
+    border: 1px solid var(--var-color-button);
+    border-radius: 4px;
+    background-color: var(--var-color-input-background);
+    padding: .7em;
+    -moz-appearance: textfield;
+}
+
+input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+input:hover, input:focus {
+    border-color: var(--var-color-button-hover) !important;
+    background-color: var(--var-color-input-background-hover) !important;
+}

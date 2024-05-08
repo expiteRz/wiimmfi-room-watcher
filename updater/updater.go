@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-const version, appName = "1.0.0", "expiteRz/wiimmfi-room-watcher"
+const version, repoPath = "1.0.0", "expiteRz/wiimmfi-room-watcher"
 
 func DoUpdate() {
 	fmt.Println("Now checking the new version. This will take some time if you have bad network...")
@@ -26,7 +26,7 @@ func DoUpdate() {
 	}
 
 	ver := semver.MustParse(version)
-	update, err := selfupdate.UpdateSelf(ver, appName)
+	update, err := selfupdate.UpdateSelf(ver, repoPath)
 	if err != nil {
 		fmt.Println("Failed to update application")
 		return
@@ -43,7 +43,7 @@ func DoUpdate() {
 
 	fmt.Println("Application updated to the latest version:", update.Version.String())
 	fmt.Println("Release notes:\n", update.ReleaseNotes)
-	fmt.Println("Press any button and the application will restart...")
+	fmt.Println("Press any key to restart the application automatically...")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	_, err = os.Open(exec)

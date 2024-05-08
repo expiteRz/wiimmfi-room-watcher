@@ -144,11 +144,17 @@ func StartParseRoom() {
 		fmt.Println("")
 
 		time.Sleep(time.Duration(utils.LoadedConfig.Interval) * time.Second)
+		fmt.Println("\033[H\033[2J")
 	}
 }
 
-func checkSelf(i, j int) string {
-	if i == j {
+func checkSelf(i string, j int) string {
+	x, err := strconv.Atoi(i)
+	if err != nil {
+		log.Println(err)
+		return " "
+	}
+	if x == j {
 		return ">"
 	}
 	return " "
@@ -183,7 +189,7 @@ func InitParseRoom() (*SourceParse, bool, error) {
 	var base []json.RawMessage
 	var result SourceParse
 
-	res, err := http.Get("https://wiimmfi.de/stats/mkwx/room/p" + strconv.Itoa(utils.LoadedConfig.Pid) + "?m=json")
+	res, err := http.Get("https://wiimmfi.de/stats/mkwx/room/p" + utils.LoadedConfig.Pid + "?m=json")
 	if err != nil {
 		return nil, false, err
 	}
