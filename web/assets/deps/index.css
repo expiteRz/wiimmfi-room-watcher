@@ -10,6 +10,21 @@
     --var-color-input-background: hsla(36deg, 1%, 18%, .3);
     --var-color-input-background-hover: hsla(36deg, 1%, 24%, .7);
     --var-color-setting-item-background-hover: hsl(36deg, 1%, 18%);
+    --var-color-selection-background: hsl(36deg, 30%, 60%);
+    --var-color-selection-foreground: hsl(36deg, 12%, 12%);
+
+    --var-color-toast-success-background: hsl(128deg, 50%, 60%);
+    --var-color-toast-error-background: hsl(0deg, 50%, 60%);
+}
+
+::selection {
+    color: var(--var-color-selection-foreground);
+    background-color: var(--var-color-selection-background);
+}
+
+::-moz-selection {
+    color: var(--var-color-selection-foreground);
+    background-color: var(--var-color-selection-background);
 }
 
 html, body {
@@ -21,6 +36,9 @@ html, body {
 }
 
 * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
     transition: all .2s ease-in-out !important;
 }
 
@@ -39,6 +57,7 @@ body {
     display: flex;
     position: fixed;
     flex-direction: column;
+    background-color: var(--var-color-background);
     width: 100%;
     top: 0;
     z-index: 2000;
@@ -54,6 +73,7 @@ body {
 
 .social-dock > a:hover {
     color: var(--var-color-button-hover);
+    filter: drop-shadow(0 0 1em var(--var-color-button-hover));
 }
 
 .nav {
@@ -114,8 +134,7 @@ main {
     position: relative;
     display: flex;
     border-radius: .4em;
-    padding-left: 1em;
-    padding-right: 1em;
+    padding: 1em;
 
     *:nth-child(2) {
         margin-top: 1.4em;
@@ -150,4 +169,50 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {
 input:hover, input:focus {
     border-color: var(--var-color-button-hover) !important;
     background-color: var(--var-color-input-background-hover) !important;
+}
+
+.overlay-item {
+    border-radius: .3em;
+}
+
+.overlay-item:hover {
+    background-color: var(--var-color-setting-item-background-hover) !important;
+}
+
+.overlay-item > div {
+    display: flex;
+    padding: 1em;
+}
+
+.overlay-item > div > *:nth-child(2) {
+    margin-left: auto;
+}
+
+.toast {
+    display: inline-block;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    padding: 1em;
+    margin: 1em;
+    border-radius: .3em;
+    transition: all 1s ease-in-out;
+    opacity: 0;
+    text-shadow: 0 0 .6em black;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.toast.success {
+    background-color: var(--var-color-toast-success-background);
+    filter: drop-shadow(0 0 1em var(--var-color-toast-success-background));
+}
+
+.toast.error {
+    background-color: var(--var-color-toast-error-background);
+    filter: drop-shadow(0 0 1em var(--var-color-toast-error-background));
+}
+
+.toast.show {
+    opacity: 1;
 }

@@ -8,13 +8,14 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"time"
+	"strings"
 )
 
 type Config struct {
-	Pid      string `json:"pid"`             // Set PID of targeted player
-	Interval int    `json:"interval,string"` // Set seconds for interval getting api response (Default: 10, Min: 5)
-	ServerIp string `json:"server_ip"`
+	Pid        string `json:"pid"`             // Set PID of targeted player
+	Interval   int    `json:"interval,string"` // Set seconds for interval getting api response (Default: 10, Min: 5)
+	ServerIp   string `json:"server_ip"`
+	ServerPort int    `json:"server_port,string"`
 }
 
 var configFilename = flag.String("config", "config.yml", "Set specific config file")
@@ -81,14 +82,15 @@ func ReadConfig(callback chan bool) {
 			log.Fatalln(err)
 			return
 		}
-		if err = WriteConfig(); err != nil {
+		if _, err = UpdateConfig(); err != nil {
 			log.Fatalln(err)
 			return
 		}
-		// TODO: At the plan, the user can edit config in built-in setting screen and the app will reload config automatically
-		log.Println("No config file was found. wiimmfi-room-watcher created a new config file (config.toml), and please edit it as your wish.")
-		time.Sleep(5 * time.Second)
-		os.Exit(0)
+		log.SetPrefix("[Utils] ")
+		log.Println("it seems you're a newbie for wiimmfi-room-watcher. access to http://localhost:24050/?tab=1 and edit your config first")
+		//time.Sleep(5 * time.Second)
+		callback <- true
+		return
 	}
 	bytes, err := io.ReadAll(file)
 	if err != nil {
@@ -99,9 +101,16 @@ func ReadConfig(callback chan bool) {
 		log.Fatalln(err)
 		return
 	}
+	if strings.Contains(LoadedConfig.ServerIp, ":") {
+		log.Println("unnecessary port number included in server ip. wiimmfi-room-watcher will cut the port number")
+		LoadedConfig.ServerIp, _, _ = strings.Cut(LoadedConfig.ServerIp, ":")
+	}
 	if LoadedConfig.Interval < 5 {
 		LoadedConfig.Interval = 5
 		log.Println("The program reset your configured interval to 5 to get rid of the possibility of DoS.")
+	}
+	if LoadedConfig.ServerPort <= 0 {
+		LoadedConfig.ServerPort = 24050
 	}
 	callback <- true
 }
@@ -128,27 +137,30 @@ func ReadConfig(callback chan bool) {
 //	}
 //}
 
-func WriteConfig(config ...Config) error {
+func UpdateConfig(config ...Config) (needRestart bool, err error) { // bool = true if required values are changed for server hosting
 	if len(config) <= 0 {
 		config = append(config, Config{
-			Pid:      "600000000",
-			Interval: 5,
-			ServerIp: "127.0.0.1:24050",
+			Pid:        "600000000",
+			Interval:   10,
+			ServerIp:   "127.0.0.1",
+			ServerPort: 24050,
 		})
 	}
+	needRestart = LoadedConfig.ServerPort != config[0].ServerPort
+	LoadedConfig = config[0]
 	bytes, err := yaml.Marshal(config[0])
 	if err != nil {
-		return err
+		return
 	}
 	file, err := os.Create(configPath)
 	if err != nil {
-		return err
+		return
 	}
 	_, err = file.Write(bytes)
 	if err != nil {
-		return err
+		return
 	}
-	return nil
+	return
 }
 
 func getAbsPath() (string, error) {
@@ -168,8 +180,12 @@ func getAbsPath() (string, error) {
 func ValidateStoredConfig(data Config) error {
 	if data.ServerIp == "" {
 		return errors.New("server ip is not defined")
-	} else if data.Pid == "" {
+	}
+	if data.Pid == "" {
 		return errors.New("pid is not defined")
+	}
+	if data.ServerPort <= 0 {
+		return errors.New("server port is not defined or is invalid")
 	}
 	return nil
 }

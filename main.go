@@ -14,6 +14,6 @@ func main() {
 	<-configDone
 
 	go web.StartParseRoom()
-	go web.SetupRoutes()
+	//web.SetupRoutes()
 	web.StartServer()
 }

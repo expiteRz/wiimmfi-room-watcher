@@ -16,7 +16,17 @@ func GetWebAsset(filename string) string {
 	return string(file)
 }
 
-var settingItemTemplate = `
+const overlayItemTemplate = `
+<div class="overlay-item">
+  <div>
+    <h2>{NAME}</h2>
+    <button class="button open_button" id="{ID}" to="{NAME}">Open folder</button>
+  </div>
+  <iframe src="{URL}" width="500" height="300" scrolling="no" frameborder="0"></iframe>
+</div>
+`
+
+const settingItemTemplate = `
 <div class="setting-item">
   <div>
     <h3>{NAME}</h3>
@@ -26,20 +36,25 @@ var settingItemTemplate = `
 </div>
 `
 
-var settingItemInputTemplate = `
+const settingItemInputTemplate = `
 <label class="{TYPE}">
   <input type="{TYPE}" name="{NAME}" id="{ID}" {ADDON} value="{VALUE}" />
 </label>
 `
 
-var settingSubmitSaveTemplate = `
+const settingSubmitSaveTemplate = `
 <button class="button" id="save_settings">Save</button>
+`
+
+const internalErrorTemplate = `
+<div>500 internal server error</div>
 `
 
 var settingItemDict = []map[string]string{
 	{"id": "pid", "name": "Target PID", "description": "PID to watch the current room statistic"},
 	{"id": "interval", "name": "Interval", "description": "Frequency in seconds to update statistic (10 as default, least 5)"},
-	{"id": "serverip", "name": "Host address", "description": "IP address to host the API and overlays (127.0.0.1:24050 as default)"},
+	{"id": "serverip", "name": "Host address", "description": "IP address to host the API and overlays (127.0.0.1 as default)"},
+	{"id": "serverport", "name": "Host port", "description": "Targeted port number to host the API and overlays (24050 as default)"},
 	//{"id": "open_at_startup", "name": "Open dashboard on startup", "description": "Open dashboard in browser on startup"},
 }
 

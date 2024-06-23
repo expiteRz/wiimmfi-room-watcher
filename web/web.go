@@ -6,10 +6,12 @@ package web
 
 import (
 	"app.rz-public.xyz/wiimmfi-room-watcher/utils"
+	"app.rz-public.xyz/wiimmfi-room-watcher/web/handlers/api"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"io/fs"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -38,18 +40,23 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func SetupRoutes() {
-	http.HandleFunc("/ws", wsEndpoint)
+type ApiFunc func(http.ResponseWriter, *http.Request)
+
+var apiHandleList = map[string]ApiFunc{
+	"/api/setting/save":               api.SaveSettingHandle,
+	"/api/overlays/open/{folderName}": api.OpenFolder,
 }
 
-func StartServer() {
+func setupRoutes() *http.ServeMux {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/ws", wsEndpoint)
 	ex, err := os.Executable()
 	if err != nil {
 		panic(err)
 	}
 	parentPath := filepath.Dir(ex)
 	overlayFs := http.FileServer(http.Dir(filepath.Join(parentPath, "static")))
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if len(r.URL.Path[1:]) > 0 {
 			overlayFs.ServeHTTP(w, r)
 			return
@@ -66,26 +73,45 @@ func StartServer() {
 			htmlTitle = "How to add overlay on OBS | " + htmlTitle
 			body = strings.Replace(GetWebAsset("assets/templates/index.html"), "{{BODY}}", "tut written here", -1)
 		default:
-			body = strings.Replace(GetWebAsset("assets/templates/index.html"), "{{BODY}}", "hello", -1)
+			htmlTitle = "Local overlays | " + htmlTitle
+			body = strings.Replace(GetWebAsset("assets/templates/index.html"), "{{BODY}}", makeLibrary(), -1)
 		}
 		body = strings.Replace(body, "{{TITLE}}", htmlTitle, -1)
+		body = strings.Replace(body, "{{DEBUGSCRIPT}}", "", -1)
 		if _, err := fmt.Fprint(w, body); err != nil {
 			log.Println(err)
 		}
 	})
-	assetFs, err := fs.Sub(webUiAssets, "assets/deps")
+	//assetFs, err := fs.Sub(webUiAssets, "assets/deps")
+	assetFs, err := fs.Sub(os.DirFS("./web"), "assets/deps")
 	if err != nil {
 		log.Println(err)
 	} else {
-		http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assetFs))))
+		mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assetFs))))
 	}
-	http.HandleFunc("/json", handle)
+	mux.HandleFunc("/json", handle)
+	// Call API handlers
+	for s := range apiHandleList {
+		mux.HandleFunc(s, apiHandleList[s])
+	}
 
-	// There is no way to print the notification that the user can access after serving, so print it here instead
-	fmt.Printf("You can now access to http://%s or add it as a browser source in OBS!\n", utils.LoadedConfig.ServerIp)
+	return mux
+}
 
-	err = http.ListenAndServe(utils.LoadedConfig.ServerIp, nil)
+func StartServer() {
+	port, err := portCheck(utils.LoadedConfig.ServerIp, utils.LoadedConfig.ServerPort)
+	address := fmt.Sprint(utils.LoadedConfig.ServerIp, ":", port)
+	l, err := net.Listen("tcp", address)
 	if err != nil {
+		log.Fatalln(err)
+		return
+	}
+	mux := setupRoutes()
+	// There is no way to print the notification that the user can access after serving, so print it here instead
+	log.SetPrefix("[Web] ")
+	log.Printf("Start hosting on http://%s\n", address)
+
+	if err = http.Serve(l, mux); err != nil {
 		log.SetPrefix("[Web] ")
 		log.Println(err)
 		time.Sleep(5 * time.Second)
@@ -108,6 +134,7 @@ func makeSettingPage() (html string) {
 		html = strings.Replace(html, "{DESC}", settingItemDict[i]["description"], -1)
 
 		child := strings.Replace(settingItemInputTemplate, "{NAME}", settingItemDict[i]["name"], -1)
+		child = strings.Replace(child, "{ID}", settingItemDict[i]["id"], -1)
 		switch element.Type().String() {
 		case "string":
 			child = strings.Replace(child, "{TYPE}", "text", -1)
@@ -123,6 +150,8 @@ func makeSettingPage() (html string) {
 			if element.Int() != 0 {
 				if elements.Type().Field(i).Name == "Interval" {
 					child = strings.Replace(child, "{ADDON}", `min="5"`, -1)
+				} else if elements.Type().Field(i).Name == "ServerPort" {
+					child = strings.Replace(child, "{ADDON}", `min="1" max="65535"`, -1)
 				} else {
 					child = strings.Replace(child, "{ADDON}", `min="0"`, -1)
 				}
@@ -145,5 +174,28 @@ func makeSettingPage() (html string) {
 		html = strings.Replace(html, "{INPUT}", child, -1)
 	}
 
+	html += "<div>" + settingSubmitSaveTemplate + "</div>"
+
 	return html
+}
+
+func makeLibrary() (html string) {
+	exPath, err := os.Executable()
+	if err != nil {
+		return internalErrorTemplate
+	}
+	exPath = filepath.Join(filepath.Dir(exPath), "static")
+	dir, err := os.ReadDir(exPath)
+	if err != nil {
+		return internalErrorTemplate
+	}
+	for _, entry := range dir {
+		html += strings.Replace(overlayItemTemplate, "{NAME}", entry.Name(), -1)
+		html = strings.Replace(html, "{ID}", entry.Name(), -1)
+		html = strings.Replace(html, "{URL}",
+			fmt.Sprint("http://", utils.LoadedConfig.ServerIp, ":", utils.LoadedConfig.ServerPort, "/", entry.Name(), "/index.html"),
+			-1)
+	}
+
+	return
 }

@@ -61,7 +61,7 @@ func StartParseRoom() {
 		}
 		switch gameMode {
 		case utils.ModePrivateVS, utils.ModeVS:
-			fmt.Printf("Engine: %s\n", utils.ENGINE[room.Engine])
+			fmt.Println("Engine:", utils.ENGINE[room.Engine])
 			data.Setting.EngineText = utils.ENGINE[room.Engine]
 			data.Setting.Engine = room.Engine
 		case utils.ModePrivateBalloonBattle, utils.ModeBalloonBattle:
@@ -75,7 +75,7 @@ func StartParseRoom() {
 		data.Setting.RaceCount = room.RaceCount
 
 		/// Current track/arena
-		fmt.Printf("Track: %s\n", room.Track[1].(string))
+		fmt.Println("Track:", room.Track[1].(string))
 		data.Setting.Course = room.Track[1].(string)
 		data.Setting.CourseId = int(room.Track[0].(float64))
 
