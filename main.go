@@ -7,9 +7,13 @@ import (
 )
 
 func main() {
+	configDone := make(chan bool)
+
 	updater.DoUpdate()
-	utils.ReadConfig()
+	go utils.ReadConfig(configDone)
+	<-configDone
+
 	go web.StartParseRoom()
-	go web.SetupRoutes()
+	//web.SetupRoutes()
 	web.StartServer()
 }

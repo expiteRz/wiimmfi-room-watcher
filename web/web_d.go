@@ -1,4 +1,4 @@
-//go:build !debug
+//go:build debug
 
 package web
 
@@ -61,20 +61,31 @@ func setupRoutes() *http.ServeMux {
 			overlayFs.ServeHTTP(w, r)
 			return
 		}
+		// For debug
+		bytes, err := os.ReadFile("web/assets/templates/index.html")
+		if err != nil {
+			return
+		}
+		s := string(bytes)
 		htmlTitle := "wiimmfi-room-watcher 1.0.0"
 		var body string
 		switch r.URL.Query().Get("tab") {
 		case "1":
 			htmlTitle = "Settings | " + htmlTitle
 			htmlMain := makeSettingPage()
-			body = strings.Replace(GetWebAsset("assets/templates/index.html"), "{{BODY}}", htmlMain, -1)
+			//body = strings.Replace(GetWebAsset("assets/templates/index.html"), "{{BODY}}", htmlMain, -1)
+			body = strings.Replace(s, "{{BODY}}", htmlMain, -1)
 			break
 		case "2":
 			htmlTitle = "How to add overlay on OBS | " + htmlTitle
-			body = strings.Replace(GetWebAsset("assets/templates/index.html"), "{{BODY}}", "tut written here", -1)
+			//body = strings.Replace(GetWebAsset("assets/templates/index.html"), "{{BODY}}", "tut written here", -1)
+			// TODO: View instruction to add overlay on OBS
+			body = strings.Replace(s, "{{BODY}}", "tut written here", -1)
 		default:
 			htmlTitle = "Local overlays | " + htmlTitle
-			body = strings.Replace(GetWebAsset("assets/templates/index.html"), "{{BODY}}", makeLibrary(), -1)
+			//body = strings.Replace(GetWebAsset("assets/templates/index.html"), "{{BODY}}", "hello", -1)
+			// TODO: View overlay list
+			body = strings.Replace(s, "{{BODY}}", makeLibrary(), -1)
 		}
 		body = strings.Replace(body, "{{TITLE}}", htmlTitle, -1)
 		body = strings.Replace(body, "{{DEBUGSCRIPT}}", "", -1)
