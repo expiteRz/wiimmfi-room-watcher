@@ -89,8 +89,8 @@ func setupRoutes() *http.ServeMux {
 	} else {
 		mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assetFs))))
 	}
-	mux.HandleFunc("/json", handle)
-	// Call API handlers
+	mux.HandleFunc("/json", jsonHandle)
+	// Serve API handlers
 	for s := range apiHandleList {
 		mux.HandleFunc(s, apiHandleList[s])
 	}
@@ -119,7 +119,7 @@ func StartServer() {
 	}
 }
 
-func handle(w http.ResponseWriter, _ *http.Request) {
+func jsonHandle(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(JSONByte))
 }

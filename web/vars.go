@@ -20,9 +20,12 @@ const overlayItemTemplate = `
 <div class="overlay-item">
   <div>
     <h2>{NAME}</h2>
-    <button class="button open_button" id="{ID}" to="{NAME}">Open folder</button>
+    <div class="buttons">
+      <button class="button only-icon copy" to="{ORIGINPATH}"><i class="fa-solid fa-copy" style="pointer-events: none;"></i></button>
+      <button class="button open_button" id="{ID}" to="{NAME}">Open folder</button>
+    </div>
   </div>
-  <iframe src="{URL}" width="500" height="300" scrolling="no" frameborder="0"></iframe>
+  <iframe src="{URL}" width="600" height="300" scrolling="no" frameborder="0"></iframe>
 </div>
 `
 
