@@ -18,7 +18,7 @@ function snackbarGenerate(status, text) {
         setTimeout(() => {
             exist_toast.remove();
         }, 1000);
-    }, 4000);
+    }, 3000);
 }
 
 document.querySelectorAll(".nav>.button").forEach(item => {
@@ -52,13 +52,16 @@ window.addEventListener("click", async ev => {
             return;
         }
         if (res.need_restart) snackbarGenerate("success", "Setting saved. You need to restart the server to apply your update");
-        else snackbarGenerate("success", "Setting saved successfully.")
+        else snackbarGenerate("success", "Setting saved successfully.");
     }
 
     if (t?.classList.contains("copy")) {
-        await navigator.clipboard.writeText(t.textContent);
-
-        console.log("maybe copied?");
+        if (t.attributes.to?.value === undefined || t.attributes.to?.value === null) {
+            snackbarGenerate("error", "Copy failed. URL is invalid.");
+            return;
+        }
+        await navigator.clipboard.writeText(t.attributes.to?.value);
+        snackbarGenerate("success", "URL copied successfully.");
     }
 
     if (t?.classList.contains("open_button")) return open_folder(t);

@@ -100,8 +100,8 @@ func setupRoutes() *http.ServeMux {
 	} else {
 		mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assetFs))))
 	}
-	mux.HandleFunc("/json", handle)
-	// Call API handlers
+	mux.HandleFunc("/json", jsonHandle)
+	// Serve API handlers
 	for s := range apiHandleList {
 		mux.HandleFunc(s, apiHandleList[s])
 	}
@@ -126,11 +126,11 @@ func StartServer() {
 		log.SetPrefix("[Web] ")
 		log.Println(err)
 		time.Sleep(5 * time.Second)
-		log.Fatalln(err)
+		os.Exit(-1)
 	}
 }
 
-func handle(w http.ResponseWriter, _ *http.Request) {
+func jsonHandle(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(JSONByte))
 }
@@ -149,8 +149,8 @@ func makeSettingPage() (html string) {
 		switch element.Type().String() {
 		case "string":
 			child = strings.Replace(child, "{TYPE}", "text", -1)
-			if element.String() != "" {
-				child = strings.Replace(child, "{ADDON}", `min="0"`, -1)
+			if element.String() != "" && elements.Type().Field(i).Name == "ServerIp" {
+				child = strings.Replace(child, "{ADDON}", `maxlength="15"`, -1)
 			} else {
 				child = strings.Replace(child, "{ADDON}", "", -1)
 			}
@@ -206,6 +206,7 @@ func makeLibrary() (html string) {
 		html = strings.Replace(html, "{URL}",
 			fmt.Sprint("http://", utils.LoadedConfig.ServerIp, ":", utils.LoadedConfig.ServerPort, "/", entry.Name(), "/index.html"),
 			-1)
+		html = strings.Replace(html, "{ORIGINPATH}", fmt.Sprint("http://", utils.LoadedConfig.ServerIp, ":", utils.LoadedConfig.ServerPort, "/", entry.Name()), -1)
 	}
 
 	return

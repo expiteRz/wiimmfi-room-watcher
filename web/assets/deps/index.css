@@ -121,6 +121,14 @@ body {
     outline: 6px solid var(--var-color-button-bg-hover);
 }
 
+.button.only-icon {
+    min-width: 1.5em;
+}
+
+.button.only-icon > i {
+    margin: auto;
+}
+
 main {
     display: flex;
     gap: .7em;
@@ -160,6 +168,7 @@ input {
     background-color: var(--var-color-input-background);
     padding: .7em;
     -moz-appearance: textfield;
+    width: 10em;
 }
 
 input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {
@@ -172,7 +181,9 @@ input:hover, input:focus {
 }
 
 .overlay-item {
+    display: block;
     border-radius: .3em;
+    overflow: hidden;
 }
 
 .overlay-item:hover {
@@ -185,12 +196,21 @@ input:hover, input:focus {
 }
 
 .overlay-item > div > *:nth-child(2) {
+    display: flex;
+    gap: 1em;
     margin-left: auto;
+}
+
+.overlay-item > div > .overlay_path_copy {
+    border-radius: .3em;
+    padding: .2em .3em;
+    margin-left: .3em;
+    background-color: var(--var-color-nav-background);
 }
 
 .toast {
     display: inline-block;
-    position: absolute;
+    position: fixed;
     bottom: 0;
     left: 50%;
     padding: 1em;
