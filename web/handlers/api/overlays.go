@@ -20,9 +20,9 @@ func OpenFolder(w http.ResponseWriter, r *http.Request) {
 	}
 	folderName := r.PathValue("folderName")
 	exPath, err := os.Executable()
+	w.WriteHeader(http.StatusInternalServerError)
 	if err != nil {
 		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "failed to open folder"})
 		return
 	}
@@ -31,7 +31,6 @@ func OpenFolder(w http.ResponseWriter, r *http.Request) {
 	_, err = exec.Command("cmd", "/c", "start", overlayPath).Output()
 	if err != nil {
 		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "failed to open folder"})
 		return
 	}
