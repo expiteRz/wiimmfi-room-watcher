@@ -18,7 +18,7 @@ function snackbarGenerate(status, text) {
         setTimeout(() => {
             exist_toast.remove();
         }, 1000);
-    }, 4000);
+    }, 3000);
 }
 
 document.querySelectorAll(".nav>.button").forEach(item => {

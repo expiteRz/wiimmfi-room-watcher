@@ -168,6 +168,7 @@ input {
     background-color: var(--var-color-input-background);
     padding: .7em;
     -moz-appearance: textfield;
+    width: 10em;
 }
 
 input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {

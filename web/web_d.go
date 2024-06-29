@@ -149,8 +149,8 @@ func makeSettingPage() (html string) {
 		switch element.Type().String() {
 		case "string":
 			child = strings.Replace(child, "{TYPE}", "text", -1)
-			if element.String() != "" {
-				child = strings.Replace(child, "{ADDON}", `min="0"`, -1)
+			if element.String() != "" && elements.Type().Field(i).Name == "ServerIp" {
+				child = strings.Replace(child, "{ADDON}", `maxlength="15"`, -1)
 			} else {
 				child = strings.Replace(child, "{ADDON}", "", -1)
 			}
