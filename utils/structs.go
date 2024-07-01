@@ -29,13 +29,15 @@ type RoomMember struct {
 	Status       string       `json:"role"`
 	FinishTimes  []int        `json:"finish_times"` // FinishTimes[0] = Primary players time, FinishTimes[1] = Guest players time
 	Course       MemberCourse `json:"course"`
-	Combos       []Combo      `json:"combos"` // Combo[0] = Primary players combo, Combo[1] = Guest players combo
+	Combos       []Combo      `json:"combos"`     // Combo[0] = Primary players combo, Combo[1] = Guest players combo
+	DelayTime    int          `json:"delay_time"` // milliseconds
+	ConnFail     float32      `json:"conn_fail"`
 }
 
 type MemberCourse struct {
-	Id      int    `json:"id"`
-	Name    string `json:"name"`
-	Allowed string `json:"allowed"`
+	Id       int    `json:"id"`
+	Name     string `json:"name"`
+	Category string `json:"category"`
 }
 
 type Combo struct {
