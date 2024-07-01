@@ -104,10 +104,12 @@ func StartParseRoom() {
 				Status:       player.OlRole,
 				FinishTimes:  []int{player.Time[0]},
 				Course: utils.MemberCourse{
-					Name:    player.Track[1].(string),
-					Id:      int(player.Track[0].(float64)),
-					Allowed: player.Track[4].(string),
+					Name:     player.Track[1].(string),
+					Id:       int(player.Track[0].(float64)),
+					Category: player.Track[4].(string),
 				},
+				DelayTime: player.Delay[1],
+				ConnFail:  player.ConnFail,
 			}
 			chara := utils.CharacterId(player.Driver[0])
 			vehicle := utils.VehicleId(player.Vehicle[0])
@@ -182,7 +184,9 @@ type SourceMemberParse struct {
 	Track     [5]interface{} `json:"track"`
 	Driver    []int          `json:"driver"`
 	Vehicle   []int          `json:"vehicle"`
+	Delay     []int          `json:"delay"`
 	Time      []int          `json:"time"`
+	ConnFail  float32        `json:"conn_fail"`
 }
 
 func InitParseRoom() (*SourceParse, bool, error) {
