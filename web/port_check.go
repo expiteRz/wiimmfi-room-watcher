@@ -7,18 +7,18 @@ import (
 	"time"
 )
 
-func portCheck(address string, port int) (int, error) {
+func portCheck(address string, port int) (string, error) {
 	for {
 		conn, err := net.DialTimeout("tcp", fmt.Sprint(address, ":", port), time.Second)
 		if err != nil {
-			return port, nil
+			return fmt.Sprint(address, ":", port), nil
 		}
 		if conn != nil {
 			newPort := port + 1
-			log.Println(address, "is already in use.", fmt.Sprint(address, ":", newPort), "will use instead.")
+			log.Println(fmt.Sprint(address, ":", port), "is already in use.", fmt.Sprint(address, ":", newPort), "will use instead.")
 			port = newPort
 			continue
 		}
-		return port, nil
+		return fmt.Sprint(address, ":", port), nil
 	}
 }

@@ -110,9 +110,8 @@ func setupRoutes() *http.ServeMux {
 }
 
 func StartServer() {
-	port, err := portCheck(utils.LoadedConfig.ServerIp, utils.LoadedConfig.ServerPort)
-	address := fmt.Sprint(utils.LoadedConfig.ServerIp, ":", port)
-	l, err := net.Listen("tcp", address)
+	addr, err := portCheck(utils.LoadedConfig.ServerIp, utils.LoadedConfig.ServerPort)
+	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Fatalln(err)
 		return
@@ -120,7 +119,7 @@ func StartServer() {
 	mux := setupRoutes()
 	// There is no way to print the notification that the user can access after serving, so print it here instead
 	log.SetPrefix("[Web] ")
-	log.Printf("Start hosting on http://%s\n", address)
+	log.Printf("Start hosting on http://%s\n", addr)
 
 	if err = http.Serve(l, mux); err != nil {
 		log.SetPrefix("[Web] ")
