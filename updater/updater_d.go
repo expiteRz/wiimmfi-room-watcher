@@ -2,9 +2,8 @@
 
 package updater
 
-import "log"
+import "app.rz-public.xyz/wiimmfi-room-watcher/utils/log"
 
 func DoUpdate() {
-	log.SetPrefix("[Updater] ")
-	log.Println("You launched the app on debug. Updater will not start")
+	log.Logger.Debug().Msg("You launched the app on debug purpose. Updating software will be ignored.")
 }

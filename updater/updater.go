@@ -3,11 +3,10 @@
 package updater
 
 import (
+	"app.rz-public.xyz/wiimmfi-room-watcher/utils/log"
 	"bufio"
-	"fmt"
 	"github.com/blang/semver"
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
-	"log"
 	"os"
 	"path/filepath"
 	"time"
@@ -16,11 +15,10 @@ import (
 const version, repoPath = "1.0.0", "expiteRz/wiimmfi-room-watcher"
 
 func DoUpdate() {
-	fmt.Println("Now checking the new version. This will take some time if you have bad network...")
+	log.Logger.Info().Msg("Now checking the new version. This will take some time if you have bad network...")
 	exec, err := os.Executable()
 	if err != nil {
-		log.SetPrefix("[Updater] ")
-		log.Println("Failed to update application", err)
+		log.Logger.Info().Msgf("Failed to update application %s", err)
 		time.Sleep(5 * time.Second)
 		return
 	}
@@ -28,12 +26,12 @@ func DoUpdate() {
 	ver := semver.MustParse(version)
 	update, err := selfupdate.UpdateSelf(ver, repoPath)
 	if err != nil {
-		fmt.Println("Failed to update application")
+		log.Logger.Info().Msg("Failed to update application")
 		return
 	}
 
 	if update.Version.EQ(ver) {
-		fmt.Println("Application is already up-to-date!")
+		log.Logger.Info().Msg("Application is already up-to-date!")
 		full, _ := os.Executable()
 		dir, file := filepath.Split(full)
 		oldName := filepath.Join(dir, "."+file+".old")
@@ -41,14 +39,14 @@ func DoUpdate() {
 		return
 	}
 
-	fmt.Println("Application updated to the latest version:", update.Version.String())
-	fmt.Println("Release notes:\n", update.ReleaseNotes)
-	fmt.Println("Press any key to restart the application automatically...")
+	log.Logger.Info().Msgf("Application updated to the latest version: %s", update.Version.String())
+	log.Logger.Info().Msgf("Release notes:\n%s", update.ReleaseNotes)
+	log.Logger.Info().Msg("Press any key to restart the application automatically...")
 	scanner := bufio.NewScanner(os.Stdin)
 	scanner.Scan()
 	_, err = os.Open(exec)
 	if err != nil {
-		log.Fatalln("Failed to restart the application. Please execute it manually.")
+		log.Logger.Info().Msg("Failed to restart the application. Please execute it manually.")
 		return
 	}
 	os.Exit(0)

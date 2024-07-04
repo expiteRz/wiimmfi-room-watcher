@@ -1,11 +1,11 @@
 package utils
 
 import (
+	"app.rz-public.xyz/wiimmfi-room-watcher/utils/log"
 	"errors"
 	"flag"
 	"gopkg.in/yaml.v3"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -73,41 +73,40 @@ func ReadConfig(callback chan bool) {
 	var err error
 	configPath, err = getAbsPath()
 	if err != nil {
-		log.Fatalln(err)
+		log.Logger.Fatal().Msg(err.Error())
 		return
 	}
 	file, err := os.Open(configPath)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
-			log.Fatalln(err)
+			log.Logger.Fatal().Msg(err.Error())
 			return
 		}
 		if _, err = UpdateConfig(); err != nil {
-			log.Fatalln(err)
+			log.Logger.Fatal().Msg(err.Error())
 			return
 		}
-		log.SetPrefix("[Utils] ")
-		log.Println("it seems you're a newbie for wiimmfi-room-watcher. access to http://localhost:24050/?tab=1 and edit your config first")
+		log.Logger.Info().Msg("it seems you're a newbie for wiimmfi-room-watcher. access to http://localhost:24050/?tab=1 and edit your config first")
 		//time.Sleep(5 * time.Second)
 		callback <- true
 		return
 	}
 	bytes, err := io.ReadAll(file)
 	if err != nil {
-		log.Fatalln(err)
+		log.Logger.Fatal().Msg(err.Error())
 		return
 	}
 	if err = yaml.Unmarshal(bytes, &LoadedConfig); err != nil {
-		log.Fatalln(err)
+		log.Logger.Fatal().Msg(err.Error())
 		return
 	}
 	if strings.Contains(LoadedConfig.ServerIp, ":") {
-		log.Println("unnecessary port number included in server ip. wiimmfi-room-watcher will cut the port number")
+		log.Logger.Info().Msg("unnecessary port number included in server ip. wiimmfi-room-watcher will cut the port number")
 		LoadedConfig.ServerIp, _, _ = strings.Cut(LoadedConfig.ServerIp, ":")
 	}
 	if LoadedConfig.Interval < 5 {
 		LoadedConfig.Interval = 5
-		log.Println("The program reset your configured interval to 5 to get rid of the possibility of DoS.")
+		log.Logger.Info().Msg("The program reset your configured interval to 5 to get rid of the possibility of DoS.")
 	}
 	if LoadedConfig.ServerPort <= 0 {
 		LoadedConfig.ServerPort = 24050
