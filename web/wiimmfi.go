@@ -57,7 +57,11 @@ func StartParseRoom() {
 			data.Setting.GameModeText = utils.GAMEMODE[gameMode]
 		}
 		if gameMode == utils.ModePrivateVS || gameMode == utils.ModeVS {
-			data.Setting.EngineText = utils.ENGINE[room.Engine]
+			if room.Engine >= 0 && room.Engine < len(utils.ENGINE) {
+				data.Setting.EngineText = utils.ENGINE[room.Engine]
+			} else {
+				data.Setting.EngineText = "Unknown"
+			}
 			data.Setting.Engine = room.Engine
 		}
 		// Store amount of races in a room
