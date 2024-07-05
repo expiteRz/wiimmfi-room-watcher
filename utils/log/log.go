@@ -6,6 +6,7 @@ import (
 	"github.com/rs/zerolog"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -34,14 +35,26 @@ func init() {
 			return fmt.Sprintf("\x1b[%dm%v\x1b[0m", clr, levelStr)
 		}
 		w.FormatCaller = func(i interface{}) string {
-			if i == nil {
-				return ""
+			var c string
+			if cc, ok := i.(string); ok {
+				c = cc
 			}
-			if strings.Contains(filepath.Base(i.(string)), "main") {
-				return "[Main]"
+			if len(c) > 0 {
+				if debugToggle {
+					if cwd, err := os.Getwd(); err == nil {
+						if rel, err := filepath.Rel(cwd, c); err == nil {
+							c = rel
+						}
+					}
+					c = fmt.Sprintf("\u001B[%dm%v\u001B[0m", 1, c)
+				} else if strings.Contains(filepath.Base(c), "main") {
+					c = "[Main]"
+				} else {
+					dir := strings.Split(path.Dir(c), "/")
+					c = "[" + cases.Title(language.AmericanEnglish).String(dir[len(dir)-1]) + "]"
+				}
 			}
-			dir := strings.Split(path.Dir(i.(string)), "/")
-			return "[" + cases.Title(language.AmericanEnglish).String(dir[len(dir)-1]) + "]"
+			return c
 		}
 	}))
 	if debugToggle {

@@ -33,9 +33,7 @@ func DoUpdate() {
 		full, _ := os.Executable()
 		dir, file := filepath.Split(full)
 		oldName := filepath.Join(dir, "."+file+".old")
-		if err := os.Remove(oldName); err != nil {
-			log.Logger.Error().Err(err).Msg("")
-		}
+		os.Remove(oldName)
 		return
 	}
 
