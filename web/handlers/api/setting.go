@@ -10,7 +10,7 @@ import (
 func SaveSettingHandle(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if r.Method != http.MethodPost {
-		log.Logger.Info().Msg("we only receive POST method")
+		log.Logger.Error().Msg("we only receive POST method")
 		w.WriteHeader(http.StatusNotAcceptable)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "we only receive POST method"})
 		return
@@ -19,20 +19,20 @@ func SaveSettingHandle(w http.ResponseWriter, r *http.Request) {
 	var postData utils.Config
 	d := json.NewDecoder(r.Body)
 	if err := d.Decode(&postData); err != nil {
-		log.Logger.Info().Msg(err.Error())
+		log.Logger.Error().Err(err).Msg("")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "except at JSON parse: " + err.Error()})
 		return
 	}
 	if err := utils.ValidateStoredConfig(postData); err != nil {
-		log.Logger.Info().Msg(err.Error())
+		log.Logger.Error().Err(err).Msg("")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "except at JSON parse: " + err.Error()})
 		return
 	}
 	needRestart, err := utils.UpdateConfig(postData)
 	if err != nil {
-		log.Logger.Info().Msg(err.Error())
+		log.Logger.Error().Err(err).Msg("")
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "except at storing posted settings: " + err.Error()})
 		return

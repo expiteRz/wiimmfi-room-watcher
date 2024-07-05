@@ -2,6 +2,7 @@ package log
 
 import (
 	"flag"
+	"fmt"
 	"github.com/rs/zerolog"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -20,9 +21,18 @@ func init() {
 
 	Logger = zerolog.New(zerolog.NewConsoleWriter(func(w *zerolog.ConsoleWriter) {
 		w.TimeFormat = time.DateTime
-		//w.FormatLevel = func(i interface{}) string {
-		//	return strings.ToUpper(fmt.Sprint("[", i, "]"))
-		//}
+		w.FormatLevel = func(i interface{}) string {
+			level, err := zerolog.ParseLevel(i.(string))
+			if err != nil {
+				return "[UNKNOWN]"
+			}
+			clr := zerolog.LevelColors[level]
+			if level == zerolog.DebugLevel {
+				clr = 35
+			}
+			levelStr := fmt.Sprint("[", strings.ToUpper(i.(string)), "]")
+			return fmt.Sprintf("\x1b[%dm%v\x1b[0m", clr, levelStr)
+		}
 		w.FormatCaller = func(i interface{}) string {
 			if i == nil {
 				return ""

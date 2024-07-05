@@ -20,14 +20,14 @@ func StartParseRoom() {
 	// Initialize JSONByte
 	JSONByte, err = json.Marshal(data)
 	if err != nil {
-		log.Logger.Info().Msg(err.Error())
+		log.Logger.Error().Err(err).Msg("")
 	}
 
 	for {
 		data = utils.RoomData{Status: "offline"}
 		room, b, err := InitParseRoom()
 		if err != nil {
-			log.Logger.Info().Msgf("Failed to get connection with wiimmfi. Please report it to the program owner: %v\n", err)
+			log.Logger.Error().Err(err).Msg("")
 			return
 		}
 		if !b {
@@ -37,7 +37,7 @@ func StartParseRoom() {
 			}
 			JSONByte, err = json.Marshal(data)
 			if err != nil {
-				log.Logger.Info().Msg(err.Error())
+				log.Logger.Error().Err(err).Msg("")
 			}
 			loggingAvoider = true
 			time.Sleep(time.Duration(utils.LoadedConfig.Interval) * time.Second)
@@ -118,13 +118,15 @@ func StartParseRoom() {
 		// Input encoded data into JSONByte and finally is readable via browser and websocket
 		JSONByte, err = json.Marshal(data)
 		if err != nil {
-			log.Logger.Info().Msg(err.Error())
+			log.Logger.Error().Err(err).Msg("")
 		}
 
 		if curRoomId != data.Id {
 			log.Logger.Info().Msgf("Detected room joined: %s", data.Id)
 			curRoomId = data.Id
 		}
+
+		log.Logger.Debug().Any("room statistic", data).Msg("")
 
 		time.Sleep(time.Duration(utils.LoadedConfig.Interval) * time.Second)
 	}

@@ -9,7 +9,6 @@ import (
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 	"os"
 	"path/filepath"
-	"time"
 )
 
 const version, repoPath = "1.0.0", "expiteRz/wiimmfi-room-watcher"
@@ -18,15 +17,14 @@ func DoUpdate() {
 	log.Logger.Info().Msg("Now checking the new version. This will take some time if you have bad network...")
 	exec, err := os.Executable()
 	if err != nil {
-		log.Logger.Info().Msgf("Failed to update application %s", err)
-		time.Sleep(5 * time.Second)
+		log.Logger.Error().Err(err).Msg("Failed to update application")
 		return
 	}
 
 	ver := semver.MustParse(version)
 	update, err := selfupdate.UpdateSelf(ver, repoPath)
 	if err != nil {
-		log.Logger.Info().Msg("Failed to update application")
+		log.Logger.Error().Err(err).Msg("Failed to update application")
 		return
 	}
 
@@ -35,7 +33,9 @@ func DoUpdate() {
 		full, _ := os.Executable()
 		dir, file := filepath.Split(full)
 		oldName := filepath.Join(dir, "."+file+".old")
-		os.Remove(oldName)
+		if err := os.Remove(oldName); err != nil {
+			log.Logger.Error().Err(err).Msg("")
+		}
 		return
 	}
 
@@ -46,7 +46,7 @@ func DoUpdate() {
 	scanner.Scan()
 	_, err = os.Open(exec)
 	if err != nil {
-		log.Logger.Info().Msg("Failed to restart the application. Please execute it manually.")
+		log.Logger.Error().Err(err).Msg("Failed to restart the application. Please execute it manually.")
 		return
 	}
 	os.Exit(0)

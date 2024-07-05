@@ -13,7 +13,7 @@ import (
 func OpenFolder(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if runtime.GOOS != "windows" {
-		log.Logger.Info().Msgf("your os is unsupported opening overlay folder")
+		log.Logger.Error().Msgf("your os is unsupported opening overlay folder")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "your os is unsupported opening overlay folder"})
 		return
@@ -22,7 +22,7 @@ func OpenFolder(w http.ResponseWriter, r *http.Request) {
 	exPath, err := os.Executable()
 	w.WriteHeader(http.StatusInternalServerError)
 	if err != nil {
-		log.Logger.Info().Msg(err.Error())
+		log.Logger.Error().Err(err).Msg("")
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "failed to open folder"})
 		return
 	}
@@ -30,7 +30,7 @@ func OpenFolder(w http.ResponseWriter, r *http.Request) {
 	overlayPath := filepath.Join(exactPath, "static", folderName)
 	_, err = exec.Command("cmd", "/c", "start", overlayPath).Output()
 	if err != nil {
-		log.Logger.Info().Msg(err.Error())
+		log.Logger.Error().Err(err).Msg("")
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "failed to open folder"})
 		return
 	}
