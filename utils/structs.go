@@ -1,11 +1,13 @@
 package utils
 
+import "github.com/rs/zerolog"
+
 type RoomData struct {
-	Status    string       `json:"status"`
-	Id        string       `json:"id"`
-	Setting   RoomSetting  `json:"setting"`
-	MemberLen int          `json:"player_amount"`
-	Members   []RoomMember `json:"members"`
+	Status    string      `json:"status"`
+	Id        string      `json:"id"`
+	Setting   RoomSetting `json:"setting"`
+	MemberLen int         `json:"player_amount"`
+	Members   RoomMembers `json:"members"`
 }
 
 type RoomSetting struct {
@@ -32,6 +34,17 @@ type RoomMember struct {
 	Combos       []Combo      `json:"combos"`     // Combo[0] = Primary players combo, Combo[1] = Guest players combo
 	DelayTime    int          `json:"delay_time"` // milliseconds
 	ConnFail     float32      `json:"conn_fail"`
+}
+
+type RoomMembers []RoomMember
+
+func (mm RoomMembers) MarshalZerologArray(a *zerolog.Array) {
+	for _, m := range mm {
+		a.Str(m.Name)
+		if m.GuestName != "" {
+			a.Str(m.GuestName)
+		}
+	}
 }
 
 type MemberCourse struct {

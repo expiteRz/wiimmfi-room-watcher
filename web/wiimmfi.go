@@ -20,14 +20,14 @@ func StartParseRoom() {
 	// Initialize JSONByte
 	JSONByte, err = json.Marshal(data)
 	if err != nil {
-		log.Logger.Error().Err(err).Msg("")
+		log.Logger.Error().Err(err).Send()
 	}
 
 	for {
 		data = utils.RoomData{Status: "offline"}
 		room, b, err := InitParseRoom()
 		if err != nil {
-			log.Logger.Error().Err(err).Msg("")
+			log.Logger.Error().Err(err).Send()
 			return
 		}
 		if !b {
@@ -37,7 +37,7 @@ func StartParseRoom() {
 			}
 			JSONByte, err = json.Marshal(data)
 			if err != nil {
-				log.Logger.Error().Err(err).Msg("")
+				log.Logger.Error().Err(err).Send()
 			}
 			loggingAvoider = true
 			time.Sleep(time.Duration(utils.LoadedConfig.Interval) * time.Second)
@@ -122,15 +122,16 @@ func StartParseRoom() {
 		// Input encoded data into JSONByte and finally is readable via browser and websocket
 		JSONByte, err = json.Marshal(data)
 		if err != nil {
-			log.Logger.Error().Err(err).Msg("")
+			log.Logger.Error().Err(err).Send()
 		}
 
 		if curRoomId != data.Id {
-			log.Logger.Info().Msgf("Detected room joined: %s", data.Id)
+			log.Logger.Debug().Msgf("Detected room joined: %s", data.Id)
 			curRoomId = data.Id
 		}
 
-		log.Logger.Debug().Any("room statistic", data).Msg("")
+		log.Logger.Debug().Str("course", data.Setting.Course).Int("course_id", data.Setting.CourseId).Str("engine", data.Setting.EngineText).Send()
+		log.Logger.Debug().Array("members", data.Members).Send()
 
 		time.Sleep(time.Duration(utils.LoadedConfig.Interval) * time.Second)
 	}

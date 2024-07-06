@@ -1,4 +1,4 @@
-//go:build !debug
+//go:build debug
 
 package log
 
@@ -6,9 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/rs/zerolog"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
-	"path"
+	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -41,12 +39,12 @@ func init() {
 				c = cc
 			}
 			if len(c) > 0 {
-				if strings.Contains(filepath.Base(c), "main") {
-					c = "[Main]"
-				} else {
-					dir := strings.Split(path.Dir(c), "/")
-					c = "[" + cases.Title(language.AmericanEnglish).String(dir[len(dir)-1]) + "]"
+				if cwd, err := os.Getwd(); err == nil {
+					if rel, err := filepath.Rel(cwd, c); err == nil {
+						c = rel
+					}
 				}
+				c = fmt.Sprintf("\u001B[%dm%v\u001B[0m", 1, c)
 			}
 			return c
 		}

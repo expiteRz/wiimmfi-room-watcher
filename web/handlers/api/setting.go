@@ -19,20 +19,20 @@ func SaveSettingHandle(w http.ResponseWriter, r *http.Request) {
 	var postData utils.Config
 	d := json.NewDecoder(r.Body)
 	if err := d.Decode(&postData); err != nil {
-		log.Logger.Error().Err(err).Msg("")
+		log.Logger.Error().Err(err).Send()
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "except at JSON parse: " + err.Error()})
 		return
 	}
 	if err := utils.ValidateStoredConfig(postData); err != nil {
-		log.Logger.Error().Err(err).Msg("")
+		log.Logger.Error().Err(err).Send()
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "except at JSON parse: " + err.Error()})
 		return
 	}
 	needRestart, err := utils.UpdateConfig(postData)
 	if err != nil {
-		log.Logger.Error().Err(err).Msg("")
+		log.Logger.Error().Err(err).Send()
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"status": "error", "message": "except at storing posted settings: " + err.Error()})
 		return
