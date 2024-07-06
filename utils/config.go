@@ -73,17 +73,17 @@ func ReadConfig(callback chan bool) {
 	var err error
 	configPath, err = getAbsPath()
 	if err != nil {
-		log.Logger.Fatal().Err(err).Msg("")
+		log.Logger.Fatal().Err(err).Send()
 		return
 	}
 	file, err := os.Open(configPath)
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
-			log.Logger.Fatal().Err(err).Msg("")
+			log.Logger.Fatal().Err(err).Send()
 			return
 		}
 		if _, err = UpdateConfig(); err != nil {
-			log.Logger.Fatal().Err(err).Msg("")
+			log.Logger.Fatal().Err(err).Send()
 			return
 		}
 		log.Logger.Info().Msg("it seems you're a newbie for wiimmfi-room-watcher. access to http://localhost:24050/?tab=1 and edit your config first")
@@ -93,11 +93,11 @@ func ReadConfig(callback chan bool) {
 	}
 	bytes, err := io.ReadAll(file)
 	if err != nil {
-		log.Logger.Fatal().Err(err).Msg("")
+		log.Logger.Fatal().Err(err).Send()
 		return
 	}
 	if err = yaml.Unmarshal(bytes, &LoadedConfig); err != nil {
-		log.Logger.Fatal().Err(err).Msg("")
+		log.Logger.Fatal().Err(err).Send()
 		return
 	}
 	if strings.Contains(LoadedConfig.ServerIp, ":") {

@@ -31,7 +31,7 @@ var upgrader = websocket.Upgrader{
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Logger.Error().Err(err).Msg("")
+		log.Logger.Error().Err(err).Send()
 	}
 	for {
 		ws.WriteMessage(1, JSONByte)
@@ -51,7 +51,7 @@ func setupRoutes() *http.ServeMux {
 	mux.HandleFunc("/ws", wsEndpoint)
 	ex, err := os.Executable()
 	if err != nil {
-		log.Logger.Fatal().Err(err).Msg("")
+		log.Logger.Fatal().Err(err).Send()
 	}
 	parentPath := filepath.Dir(ex)
 	overlayFs := http.FileServer(http.Dir(filepath.Join(parentPath, "static")))
@@ -89,13 +89,13 @@ func setupRoutes() *http.ServeMux {
 		body = strings.Replace(body, "{{TITLE}}", htmlTitle, -1)
 		body = strings.Replace(body, "{{DEBUGSCRIPT}}", "", -1)
 		if _, err := fmt.Fprint(w, body); err != nil {
-			log.Logger.Error().Err(err).Msg("")
+			log.Logger.Error().Err(err).Send()
 		}
 	})
 	//assetFs, err := fs.Sub(webUiAssets, "assets/deps")
 	assetFs, err := fs.Sub(os.DirFS("./web"), "assets/deps")
 	if err != nil {
-		log.Logger.Error().Err(err).Msg("")
+		log.Logger.Error().Err(err).Send()
 	} else {
 		mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assetFs))))
 	}
@@ -112,7 +112,7 @@ func StartServer() {
 	addr, err := portCheck(utils.LoadedConfig.ServerIp, utils.LoadedConfig.ServerPort)
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Logger.Fatal().Err(err).Msg("")
+		log.Logger.Fatal().Err(err).Send()
 		return
 	}
 	mux := setupRoutes()
@@ -120,7 +120,7 @@ func StartServer() {
 	log.Logger.Info().Msgf("Start hosting on http://%s", addr)
 
 	if err = http.Serve(l, mux); err != nil {
-		log.Logger.Error().Err(err).Msg("")
+		log.Logger.Error().Err(err).Send()
 		time.Sleep(5 * time.Second)
 		os.Exit(-1)
 	}
