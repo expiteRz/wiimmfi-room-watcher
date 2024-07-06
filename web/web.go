@@ -6,11 +6,11 @@ package web
 
 import (
 	"app.rz-public.xyz/wiimmfi-room-watcher/utils"
+	"app.rz-public.xyz/wiimmfi-room-watcher/utils/log"
 	"app.rz-public.xyz/wiimmfi-room-watcher/web/handlers/api"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"io/fs"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -31,8 +31,8 @@ var upgrader = websocket.Upgrader{
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.SetPrefix("[Web] ")
-		log.Println(err)
+		log.Logger.Fatal().Err(err).Send()
+		return
 	}
 	for {
 		ws.WriteMessage(1, JSONByte)
@@ -52,7 +52,7 @@ func setupRoutes() *http.ServeMux {
 	mux.HandleFunc("/ws", wsEndpoint)
 	ex, err := os.Executable()
 	if err != nil {
-		panic(err)
+		log.Logger.Fatal().Err(err).Send()
 	}
 	parentPath := filepath.Dir(ex)
 	overlayFs := http.FileServer(http.Dir(filepath.Join(parentPath, "static")))
@@ -79,13 +79,13 @@ func setupRoutes() *http.ServeMux {
 		body = strings.Replace(body, "{{TITLE}}", htmlTitle, -1)
 		body = strings.Replace(body, "{{DEBUGSCRIPT}}", "", -1)
 		if _, err := fmt.Fprint(w, body); err != nil {
-			log.Println(err)
+			log.Logger.Error().Err(err).Send()
 		}
 	})
 	//assetFs, err := fs.Sub(webUiAssets, "assets/deps")
 	assetFs, err := fs.Sub(os.DirFS("./web"), "assets/deps")
 	if err != nil {
-		log.Println(err)
+		log.Logger.Error().Err(err).Send()
 	} else {
 		mux.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.FS(assetFs))))
 	}
@@ -102,19 +102,17 @@ func StartServer() {
 	addr, err := portCheck(utils.LoadedConfig.ServerIp, utils.LoadedConfig.ServerPort)
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
-		log.Fatalln(err)
+		log.Logger.Fatal().Err(err).Send()
 		return
 	}
 	mux := setupRoutes()
 	// There is no way to print the notification that the user can access after serving, so print it here instead
-	log.SetPrefix("[Web] ")
-	log.Printf("Start hosting on http://%s\n", addr)
+	log.Logger.Info().Msgf("Start hosting on http://%s", addr)
 
 	if err = http.Serve(l, mux); err != nil {
-		log.SetPrefix("[Web] ")
-		log.Println(err)
+		log.Logger.Error().Err(err).Send()
 		time.Sleep(5 * time.Second)
-		log.Fatalln(err)
+		os.Exit(-1)
 	}
 }
 

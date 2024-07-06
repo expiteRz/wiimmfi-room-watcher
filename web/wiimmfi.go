@@ -2,10 +2,9 @@ package web
 
 import (
 	"app.rz-public.xyz/wiimmfi-room-watcher/utils"
+	"app.rz-public.xyz/wiimmfi-room-watcher/utils/log"
 	"encoding/json"
-	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,30 +15,29 @@ func StartParseRoom() {
 		loggingAvoider bool
 		err            error
 		data           utils.RoomData
+		curRoomId      string
 	)
 	// Initialize JSONByte
 	JSONByte, err = json.Marshal(data)
 	if err != nil {
-		log.SetPrefix("[Wiimmfi] ")
-		log.Println(err)
+		log.Logger.Error().Err(err).Send()
 	}
 
 	for {
 		data = utils.RoomData{Status: "offline"}
 		room, b, err := InitParseRoom()
 		if err != nil {
-			log.SetPrefix("[Wiimmfi] ")
-			log.Fatalf("Failed to get connection with wiimmfi. Please report it to the program owner: %v\n", err)
+			log.Logger.Error().Err(err).Send()
 			return
 		}
 		if !b {
 			if !loggingAvoider {
-				fmt.Println("Room not found. Seems the player is offline?")
+				log.Logger.Info().Msg("Room not found. Seems the player is offline?")
+				curRoomId = ""
 			}
 			JSONByte, err = json.Marshal(data)
 			if err != nil {
-				log.SetPrefix("[Wiimmfi] ")
-				log.Println(err)
+				log.Logger.Error().Err(err).Send()
 			}
 			loggingAvoider = true
 			time.Sleep(time.Duration(utils.LoadedConfig.Interval) * time.Second)
@@ -49,7 +47,6 @@ func StartParseRoom() {
 		/// === Start to output room details === ///
 		loggingAvoider = false
 		/// Room name
-		fmt.Printf("=== Room: %s ===\n", room.RoomName)
 		data.Id = room.RoomName
 
 		/// Mode-related
@@ -59,23 +56,18 @@ func StartParseRoom() {
 		if _, b := utils.GAMEMODE[gameMode]; b {
 			data.Setting.GameModeText = utils.GAMEMODE[gameMode]
 		}
-		switch gameMode {
-		case utils.ModePrivateVS, utils.ModeVS:
-			fmt.Println("Engine:", utils.ENGINE[room.Engine])
-			data.Setting.EngineText = utils.ENGINE[room.Engine]
+		if gameMode == utils.ModePrivateVS || gameMode == utils.ModeVS {
+			if room.Engine >= 0 && room.Engine < len(utils.ENGINE) {
+				data.Setting.EngineText = utils.ENGINE[room.Engine]
+			} else {
+				data.Setting.EngineText = "Unknown"
+			}
 			data.Setting.Engine = room.Engine
-		case utils.ModePrivateBalloonBattle, utils.ModeBalloonBattle:
-			fmt.Println("Balloon Battle")
-		case utils.ModePrivateCoinBattle, utils.ModeCoinBattle:
-			fmt.Println("Coin Battle")
-		default:
-			break
 		}
 		// Store amount of races in a room
 		data.Setting.RaceCount = room.RaceCount
 
 		/// Current track/arena
-		fmt.Println("Track:", room.Track[1].(string))
 		data.Setting.Course = room.Track[1].(string)
 		data.Setting.CourseId = int(room.Track[0].(float64))
 
@@ -88,13 +80,6 @@ func StartParseRoom() {
 
 		/// Players
 		for _, player := range room.Members {
-			fmt.Printf(
-				"%s %-15s   %-20s   %4sVR\n",
-				checkSelf(utils.LoadedConfig.Pid, player.Pid),
-				player.Fc,
-				player.Name[0][0],
-				strconv.FormatInt(int64(player.Ev), 10),
-			)
 			member := utils.RoomMember{
 				Pid:          player.Pid,
 				FriendCode:   player.Fc,
@@ -120,9 +105,6 @@ func StartParseRoom() {
 
 			// If guest exists then store guest data
 			if player.PlayerLen > 1 {
-				fmt.Printf(
-					"%s %-15s   %-20s\n", checkSelf(utils.LoadedConfig.Pid, player.Pid), "", player.Name[1][0],
-				)
 				member.GuestName = player.Name[1][0]
 				member.FinishTimes = append(member.FinishTimes, player.Time[1])
 				chara := utils.CharacterId(player.Driver[1])
@@ -140,26 +122,19 @@ func StartParseRoom() {
 		// Input encoded data into JSONByte and finally is readable via browser and websocket
 		JSONByte, err = json.Marshal(data)
 		if err != nil {
-			log.SetPrefix("[Wiimmfi] ")
-			log.Println(err)
+			log.Logger.Error().Err(err).Send()
 		}
-		fmt.Println("")
+
+		if curRoomId != data.Id {
+			log.Logger.Debug().Msgf("Detected room joined: %s", data.Id)
+			curRoomId = data.Id
+		}
+
+		log.Logger.Debug().Str("course", data.Setting.Course).Int("course_id", data.Setting.CourseId).Str("engine", data.Setting.EngineText).Send()
+		log.Logger.Debug().Array("members", data.Members).Send()
 
 		time.Sleep(time.Duration(utils.LoadedConfig.Interval) * time.Second)
-		fmt.Println("\033[H\033[2J")
 	}
-}
-
-func checkSelf(i string, j int) string {
-	x, err := strconv.Atoi(i)
-	if err != nil {
-		log.Println(err)
-		return " "
-	}
-	if x == j {
-		return ">"
-	}
-	return " "
 }
 
 type SourceParse struct {
@@ -199,7 +174,9 @@ func InitParseRoom() (*SourceParse, bool, error) {
 	}
 	body, _ := io.ReadAll(res.Body)
 	//fmt.Printf("%v\n\n", string(body))
-	res.Body.Close()
+	if err := res.Body.Close(); err != nil {
+		log.Logger.Debug().Err(err).Send()
+	}
 
 	// Unmarshal original output
 	if err := json.Unmarshal(body, &base); err != nil {
