@@ -174,7 +174,9 @@ func InitParseRoom() (*SourceParse, bool, error) {
 	}
 	body, _ := io.ReadAll(res.Body)
 	//fmt.Printf("%v\n\n", string(body))
-	res.Body.Close()
+	if err := res.Body.Close(); err != nil {
+		log.Logger.Debug().Err(err).Send()
+	}
 
 	// Unmarshal original output
 	if err := json.Unmarshal(body, &base); err != nil {
