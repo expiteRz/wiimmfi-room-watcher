@@ -27,6 +27,7 @@ var upgrader = websocket.Upgrader{
 		return true
 	},
 }
+var addr string
 
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
@@ -99,7 +100,12 @@ func setupRoutes() *http.ServeMux {
 }
 
 func StartServer() {
-	addr, err := portCheck(utils.LoadedConfig.ServerIp, utils.LoadedConfig.ServerPort)
+	var err error
+	addr, err = portCheck(utils.LoadedConfig.ServerIp, utils.LoadedConfig.ServerPort)
+	if err != nil {
+		log.Logger.Fatal().Msgf("http://%s is already in use. Please make sure the other application doesn't use the address and port, or change them by editing config.yml", addr)
+		return
+	}
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Logger.Fatal().Err(err).Send()
@@ -190,8 +196,9 @@ func makeLibrary() (html string) {
 		html += strings.Replace(overlayItemTemplate, "{NAME}", entry.Name(), -1)
 		html = strings.Replace(html, "{ID}", entry.Name(), -1)
 		html = strings.Replace(html, "{URL}",
-			fmt.Sprint("http://", utils.LoadedConfig.ServerIp, ":", utils.LoadedConfig.ServerPort, "/", entry.Name(), "/index.html"),
+			fmt.Sprint("/", entry.Name(), "/index.html"),
 			-1)
+		html = strings.Replace(html, "{ORIGINPATH}", fmt.Sprint("http://", addr, "/", entry.Name()), -1)
 	}
 
 	return

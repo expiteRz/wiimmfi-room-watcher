@@ -33,9 +33,7 @@ window.addEventListener("click", async ev => {
         const interval = document.querySelector("#interval");
         const interval_value = parseInt(interval.value);
         const interval_min = parseInt(interval.min);
-        if (interval_value < interval_min) {
-            interval.value = interval.min;
-        }
+        interval.value = interval_value < interval_min ? interval.min : interval.value;
         const download = await fetch("/api/setting/save", {
             method: "POST",
             body: JSON.stringify({

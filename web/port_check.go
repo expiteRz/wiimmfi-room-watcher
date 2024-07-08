@@ -1,7 +1,6 @@
 package web
 
 import (
-	log2 "app.rz-public.xyz/wiimmfi-room-watcher/utils/log"
 	"fmt"
 	"net"
 	"time"
@@ -14,10 +13,7 @@ func portCheck(address string, port int) (string, error) {
 			return fmt.Sprint(address, ":", port), nil
 		}
 		if conn != nil {
-			newPort := port + 1
-			log2.Logger.Info().Msg(fmt.Sprint(address, ":", port) + " is already in use. " + fmt.Sprint(address, ":", newPort) + " will use instead.")
-			port = newPort
-			continue
+			return fmt.Sprint(address, ":", port), fmt.Errorf("%s is already in use", fmt.Sprint(address, ":", port))
 		}
 		return fmt.Sprint(address, ":", port), nil
 	}
