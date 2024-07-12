@@ -1,7 +1,8 @@
 package utils
 
 const (
-	ModeNone = iota - 1
+	ModeUnknown int8 = -0x80
+	ModeNone         = iota - 1
 	ModeVS
 	ModeCoinBattle
 	ModeBalloonBattle
@@ -17,8 +18,9 @@ var (
 		"150cc",
 		"Mirror",
 	}
-	GAMEMODE = map[int]string{
-		ModeNone:                 "Unknown game mode",
+	GAMEMODE = map[int8]string{
+		ModeUnknown:              "Unknown",
+		ModeNone:                 "No game mode detected",
 		ModeVS:                   "Public VS",
 		ModeCoinBattle:           "Public Coin Battle",
 		ModeBalloonBattle:        "Public Balloon Battle",

@@ -4,6 +4,8 @@
 
 ----
 
+> Wiimmfi is currently unable to provide the exact room statistics (such as joined players and game modes). Due to this, wiimmfi-room-watcher may not work properly.
+
 ## Usage
 
 1. Download the latest release, and unzip it anywhere

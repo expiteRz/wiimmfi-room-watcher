@@ -11,7 +11,7 @@ type RoomData struct {
 }
 
 type RoomSetting struct {
-	GameMode     int    `json:"game_mode"`
+	GameMode     int8   `json:"game_mode"`
 	GameModeText string `json:"game_mode_text"`
 	RaceCount    int    `json:"race_count"`
 	Engine       int    `json:"engine"`

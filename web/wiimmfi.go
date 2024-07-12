@@ -28,6 +28,7 @@ func StartParseRoom() {
 		room, b, err := InitParseRoom()
 		if err != nil {
 			log.Logger.Error().Err(err).Send()
+			data.Status = "error"
 			return
 		}
 		if !b {
@@ -50,7 +51,7 @@ func StartParseRoom() {
 		data.Id = room.RoomName
 
 		/// Mode-related
-		gameMode := utils.CheckGameMode(int(room.OlStatus[0].(float64)))
+		gameMode := utils.CheckGameMode(room.RaceMode)
 		data.Setting.GameMode = gameMode
 		// Store game mode but text for non-coder
 		if _, b := utils.GAMEMODE[gameMode]; b {
@@ -126,11 +127,16 @@ func StartParseRoom() {
 		}
 
 		if curRoomId != data.Id {
-			log.Logger.Debug().Msgf("Detected room joined: %s", data.Id)
+			log.Logger.Info().Msgf("Detected room joined: %s", data.Id)
 			curRoomId = data.Id
 		}
 
-		log.Logger.Debug().Str("course", data.Setting.Course).Int("course_id", data.Setting.CourseId).Str("engine", data.Setting.EngineText).Send()
+		log.Logger.Debug().
+			Str("course", data.Setting.Course).
+			Int("course_id", data.Setting.CourseId).
+			Str("engine", data.Setting.EngineText).
+			Str("game_mode", data.Setting.GameModeText).
+			Send()
 		log.Logger.Debug().Array("members", data.Members).Send()
 
 		time.Sleep(time.Duration(utils.LoadedConfig.Interval) * time.Second)
@@ -140,7 +146,7 @@ func StartParseRoom() {
 type SourceParse struct {
 	RoomId    int                 `json:"room_id"`
 	RoomName  string              `json:"room_name"`
-	OlStatus  []interface{}       `json:"ol_status"`
+	RaceMode  int                 `json:"race_mode"`
 	Players   int                 `json:"n_players"`
 	RaceCount int                 `json:"n_races"`
 	Engine    int                 `json:"engine"`
