@@ -51,7 +51,7 @@ func StartParseRoom() {
 		data.Id = room.RoomName
 
 		/// Mode-related
-		gameMode := utils.CheckGameModeTEST(room.RaceMode)
+		gameMode := utils.CheckGameMode(room.RaceMode)
 		data.Setting.GameMode = gameMode
 		// Store game mode but text for non-coder
 		if _, b := utils.GAMEMODE[gameMode]; b {
