@@ -3,11 +3,16 @@ package utils
 import "github.com/rs/zerolog"
 
 type RoomData struct {
-	Status    string      `json:"status"`
+	Status    JsonStatus  `json:"status"`
 	Id        string      `json:"id"`
 	Setting   RoomSetting `json:"setting"`
 	MemberLen int         `json:"player_amount"`
 	Members   RoomMembers `json:"members"`
+}
+
+type JsonStatus struct {
+	Result string `json:"result"`
+	Reason string `json:"reason"`
 }
 
 type RoomSetting struct {

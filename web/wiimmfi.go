@@ -14,8 +14,11 @@ func StartParseRoom() {
 	var (
 		loggingAvoider bool
 		err            error
-		data           utils.RoomData
-		curRoomId      string
+		data           = utils.RoomData{Status: utils.JsonStatus{
+			Result: "offline",
+			Reason: "",
+		}}
+		curRoomId string
 	)
 	// Initialize JSONByte
 	JSONByte, err = json.Marshal(data)
@@ -24,11 +27,16 @@ func StartParseRoom() {
 	}
 
 	for {
-		data = utils.RoomData{Status: "offline"}
+		// Need to init in every loop
+		data = utils.RoomData{Status: utils.JsonStatus{Result: "offline"}}
 		room, b, err := InitParseRoom()
 		if err != nil {
-			log.Logger.Error().Err(err).Send()
-			data.Status = "error"
+			log.Logger.Error().Err(err).Msg("could not read the room statistics.")
+			data.Status = utils.JsonStatus{
+				Result: "error",
+				Reason: "wiimmfi-room-watcher failed to parse room statistics due to the software-side problem or the website's down.",
+			}
+			JSONByte, _ = json.Marshal(data)
 			return
 		}
 		if !b {
@@ -117,7 +125,7 @@ func StartParseRoom() {
 			}
 			data.Members = append(data.Members, member)
 			data.MemberLen = room.Players
-			data.Status = "success"
+			data.Status = utils.JsonStatus{Result: "success"}
 		}
 
 		// Input encoded data into JSONByte and finally is readable via browser and websocket
