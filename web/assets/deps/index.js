@@ -65,6 +65,22 @@ window.addEventListener("click", async ev => {
     if (t?.classList.contains("open_button")) return open_folder(t);
 });
 
+const tooltipCopyBtn = document.createElement("div");
+tooltipCopyBtn.classList.add("tooltip");
+tooltipCopyBtn.innerText = "Copy url to clipboard";
+
+window.addEventListener("mouseover", ev => {
+    const t = ev.target;
+
+    if (t?.classList.contains("copy")) t?.appendChild(tooltipCopyBtn);
+});
+
+window.addEventListener("mouseout", ev => {
+    const t = ev.target;
+
+    if (t?.classList.contains("copy")) t?.removeChild(tooltipCopyBtn);
+})
+
 async function open_folder(el) {
     const folderName = decodeURI(el.attributes.to?.value || "");
 

@@ -236,3 +236,28 @@ input:hover, input:focus {
 .toast.show {
     opacity: 1;
 }
+
+.tooltip {
+    pointer-events: none;
+}
+
+.copy > .tooltip {
+    position: absolute;
+    top: 5em;
+    font-size: smaller;
+    color: white;
+    background-color: black;
+    padding: 1em;
+    border-radius: .4em;
+    white-space: nowrap;
+}
+
+.copy > .tooltip:before {
+    content: "";
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    margin-left: -15px;
+    border: 15px solid transparent;
+    border-bottom: 15px solid black;
+}
