@@ -186,7 +186,10 @@ func InitParseRoom() (*SourceParse, bool, error) {
 	if err != nil {
 		return nil, false, err
 	}
-	body, _ := io.ReadAll(res.Body)
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return nil, false, err
+	}
 	//fmt.Printf("%v\n\n", string(body))
 	if err := res.Body.Close(); err != nil {
 		log.Logger.Debug().Err(err).Send()
