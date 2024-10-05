@@ -1,3 +1,7 @@
+> [!IMPORTANT]
+> This repository will be archived after v1.0 has been released with the feature which summing scores on private room, hopefully.
+> That's because the author considered the features are implemented in wiimmfi-room-watcher itself is unreasonable to provide as a stand-alone app, and releasing it as a web app is more suitable.
+
 # wiimmfi-room-watcher
 
 `The tool to re-structure the room statistics from Wiimmfi for readability and provide custom overlays on live streaming`
